@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "AGRec",
+  "version": "0.1.0",
+  "identifier": "com.aguang.agrec",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "AGRec · 录屏",
+        "width": 1180,
+        "height": 780,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      },
+      {
+        "label": "hud",
+        "title": "AGRec · 悬浮控制条",
+        "url": "index.html",
+        "width": 400,
+        "height": 300,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "shadow": false,
+        "focus": false
+      },
+      {
+        "label": "picker",
+        "title": "AGRec · 选择录制区域",
+        "url": "index.html",
+        "width": 400,
+        "height": 300,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "shadow": false,
+        "focus": false
+      }
+    ],
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app"],
+    "icon": ["icons/icon.icns", "icons/128x128.png", "icons/32x32.png"],
+    "externalBin": ["binaries/zhilu-helper"],
+    "createUpdaterArtifacts": false,
+    "macOS": {
+      "minimumSystemVersion": "13.0",
+      "entitlements": "entitlements.plist"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "REPLACE_WITH_PUBLIC_KEY_FROM_TAURI_SIGNER_GENERATE",
+      "endpoints": [
+        "https://github.com/huipengli0708-dot/-/releases/latest/download/latest.json"
+      ]
+    }
+  }
+}

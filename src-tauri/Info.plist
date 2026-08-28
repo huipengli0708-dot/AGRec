@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>知录需要使用麦克风来录制你的讲解声音。</string>
+  <key>NSCameraUsageDescription</key>
+  <string>知录需要摄像头以录制画中画（可选）。</string>
+  <key>NSScreenCaptureUsageDescription</key>
+  <string>知录需要屏幕录制权限才能录制你的屏幕内容。</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>13.0</string>
+</dict>
+</plist>
