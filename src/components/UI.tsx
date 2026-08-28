@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { ReactNode } from "react";
+import { CODE_TO_MAC_KEYCODE, RESERVED_CODES, macKeyCodeLabel } from "../lib/keycodes";
 
 export function Card({ title, desc, children, right }: {
   title?: string; desc?: string; children: ReactNode; right?: ReactNode;
@@ -85,4 +87,41 @@ export function formatTime(sec: number) {
   const s = Math.floor(sec % 60);
   const ms = Math.floor((sec % 1) * 10);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${ms}`;
+}
+
+/** 点一下、按一个真实按键，就把这个物理键采集下来存成快捷键——
+ * 不管接的是什么牌子/布局的键盘，采集到的都是它实际上报的键。 */
+export function HotkeyField({ value, onChange }: { value: number; onChange: (code: number) => void }) {
+  const [capturing, setCapturing] = useState(false);
+  const [warn, setWarn] = useState("");
+
+  function startCapture() {
+    setWarn("");
+    setCapturing(true);
+    const onKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.repeat) return;
+      const mac = CODE_TO_MAC_KEYCODE[e.code];
+      if (mac === undefined || RESERVED_CODES.has(e.code)) {
+        setWarn("这个键不能用，换一个试试");
+        return;
+      }
+      onChange(mac);
+      setCapturing(false);
+      setWarn("");
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+  }
+
+  return (
+    <span className="hotkey-field">
+      <kbd>{macKeyCodeLabel(value)}</kbd>
+      <button type="button" className="hotkey-set" onClick={startCapture}>
+        {capturing ? "按下要用的键…" : "点击设置"}
+      </button>
+      {warn && <em className="hotkey-warn">{warn}</em>}
+    </span>
+  );
 }

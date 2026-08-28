@@ -131,7 +131,20 @@ pub struct ZoomParams {
     /// 是否在放大期间跟随鼠标平移
     pub follow: bool,
     pub easing: String,
+    /// 手动模式（trigger == "manual"）用的三个物理按键码（CGKeyCode），
+    /// 由设置页里"点击设置"实际按键采集得到，不写死具体键盘布局。
+    /// 缺省沿用标准 ANSI 键盘的 A / Z / X。
+    #[serde(rename = "hotkeyA", default = "default_hotkey_a")]
+    pub hotkey_a: u16,
+    #[serde(rename = "hotkeyZ", default = "default_hotkey_z")]
+    pub hotkey_z: u16,
+    #[serde(rename = "hotkeyX", default = "default_hotkey_x")]
+    pub hotkey_x: u16,
 }
+
+fn default_hotkey_a() -> u16 { 0x00 }
+fn default_hotkey_z() -> u16 { 0x06 }
+fn default_hotkey_x() -> u16 { 0x07 }
 
 fn default_trigger() -> String {
     "dwell".into()
@@ -150,6 +163,9 @@ impl Default for ZoomParams {
             min_gap: 0.6,
             follow: true,
             easing: "quadOut".into(),
+            hotkey_a: default_hotkey_a(),
+            hotkey_z: default_hotkey_z(),
+            hotkey_x: default_hotkey_x(),
         }
     }
 }

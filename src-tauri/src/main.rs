@@ -258,6 +258,9 @@ fn start_recording(
         "trigger": config.zoom.trigger,
         "dwellTime": config.zoom.dwell_time,
         "dwellRadius": config.zoom.dwell_radius,
+        "hotkeyA": config.zoom.hotkey_a,
+        "hotkeyZ": config.zoom.hotkey_z,
+        "hotkeyX": config.zoom.hotkey_x,
     });
     let req_path = dir.join("record-request.json");
     std::fs::write(&req_path, serde_json::to_vec_pretty(&req).map_err(err)?).map_err(err)?;

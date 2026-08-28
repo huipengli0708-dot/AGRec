@@ -91,6 +91,14 @@ struct RecordRequest: Codable {
     var trigger: String
     var dwellTime: Double
     var dwellRadius: Double
+
+    /// 手动模式（trigger == "manual"）用的三个物理按键码，来自设置页里
+    /// 用户实际按过的键（CGKeyCode），不是写死的 ANSI 键盘假设——
+    /// 不同键盘/布局也能正确识别。旧的 settings.json 没这三个字段时
+    /// 兜底成标准 ANSI 的 A(0x00) / Z(0x06) / X(0x07)。
+    var hotkeyA: UInt16 = 0x00
+    var hotkeyZ: UInt16 = 0x06
+    var hotkeyX: UInt16 = 0x07
 }
 
 // MARK: - 导出请求

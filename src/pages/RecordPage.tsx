@@ -6,7 +6,7 @@ import {
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
   type Project, type Settings, type WindowInfo,
 } from "../lib/api";
-import { Button, Card, Row, Segmented, Slider, Toggle, formatTime } from "../components/UI";
+import { Button, Card, HotkeyField, Row, Segmented, Slider, Toggle, formatTime } from "../components/UI";
 import { CursorGlyph } from "../components/CursorGlyph";
 
 type Props = {
@@ -350,18 +350,26 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
             {settings.zoom.trigger === "manual" && (
               <div className="hint-box">
                 <b>录制中的快捷键</b>
-                <br />按住 <kbd>A</kbd> + <kbd>Z</kbd> — 持续放大，松开就停在当前倍数
-                <br />按住 <kbd>A</kbd> + <kbd>X</kbd> — 缓慢缩小，松开就停在当前倍数
-                <br />单独按一下 <kbd>X</kbd>（不按 <kbd>A</kbd>）— 一步归位到 1.00×
-                <br /><span className="muted">
-                  两个手势看的是<b>按下 <kbd>X</kbd> 那一刻 <kbd>A</kbd> 在不在</b>，跟按住多久无关：
-                  按着 <kbd>A</kbd> 摁 <kbd>X</kbd> 就是慢慢往回收，想停就松手；
-                  想一步到底，松开 <kbd>A</kbd> 单独点一下 <kbd>X</kbd>。
-                  <br />三个键都在左手同一片区域，右手不用离开鼠标。
-                  <br /><b>注意</b>：因为「单独按 X」也要生效，录制中在输入框里打出字母 <kbd>x</kbd> 会被当成归位。
-                  需要边录边打字时，建议先用 <kbd>A</kbd>+<kbd>X</kbd> 收好倍数再打字。
-                  <br />不做操作时倍数一直保持，画面持续跟随鼠标移动。倍数会实时显示在悬浮控制条上；
-                  你自己的屏幕不会被放大，缩放只作用在录出来的视频里。
+                <div className="hotkey-row">
+                  前置键 <HotkeyField value={settings.zoom.hotkeyA}
+                    onChange={(v) => patchZoom({ hotkeyA: v })} /> +
+                  放大键 <HotkeyField value={settings.zoom.hotkeyZ}
+                    onChange={(v) => patchZoom({ hotkeyZ: v })} /> — 持续放大，松开停在当前倍数
+                </div>
+                <div className="hotkey-row">
+                  前置键 <HotkeyField value={settings.zoom.hotkeyA}
+                    onChange={(v) => patchZoom({ hotkeyA: v })} /> +
+                  缩小键 <HotkeyField value={settings.zoom.hotkeyX}
+                    onChange={(v) => patchZoom({ hotkeyX: v })} /> — 缓慢缩小，松开停在当前倍数
+                </div>
+                <div>单独按一下缩小键（不按前置键）— 一步归位到 1.00×</div>
+                <span className="muted">
+                  键不对、换了外接键盘识别不到？点上面的“点击设置”，自己在键盘上按一下想用的键就行，
+                  采集的是这把键盘实际上报的按键，跟型号、布局无关。
+                  <br />两个手势看的是<b>按下缩小键那一刻前置键在不在</b>，跟按住多久无关。
+                  <br /><b>注意</b>：录制中在输入框里打字，如果打到跟“缩小键”一样的字母会被当成归位，
+                  建议挑一个平时打字不常用的键。
+                  <br />不做操作时倍数一直保持，画面持续跟随鼠标移动，只影响录出来的视频，不影响你自己看到的屏幕。
                 </span>
               </div>
             )}

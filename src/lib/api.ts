@@ -42,13 +42,17 @@ export type ZoomParams = {
   minGap: number;
   follow: boolean;
   easing: "quadOut" | "cubicOut" | "inOutQuad";
+  /** 手动模式三个物理键的真实键码（CGKeyCode），录制页里录键采集得到 */
+  hotkeyA: number;
+  hotkeyZ: number;
+  hotkeyX: number;
 };
 
 export const ZOOM_TRIGGERS: { value: ZoomTrigger; label: string; desc: string }[] = [
   { value: "dwell", label: "鼠标停留放大", desc: "鼠标在一小块区域停住超过设定时间，自动放大到那里" },
   { value: "click", label: "点击放大", desc: "左键点哪就放大哪，保持一会儿再自动缩回" },
   { value: "clickToggle", label: "点击开关", desc: "点一下放大并保持，再点一下缩回" },
-  { value: "manual", label: "快捷键手动控制", desc: "按住 A+Z 放大、A+X 慢慢缩小，松手停住；单独点 X 一步归位" },
+  { value: "manual", label: "快捷键手动控制", desc: "自定义两三个键，按住放大/缩小，松手停住；下方可重新设置具体按键" },
   { value: "none", label: "不放大", desc: "全程原始画面，后期也可以在编辑器里手动加放大段" },
 ];
 

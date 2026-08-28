@@ -301,9 +301,9 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     private func pollManualHotkeys() {
         let src = CGEventSourceStateID.combinedSessionState
         let now = CACurrentMediaTime()
-        let aDown = CGEventSource.keyState(src, key: Recorder.keyA)
-        let zDown = CGEventSource.keyState(src, key: Recorder.keyZ)
-        let xDown = CGEventSource.keyState(src, key: Recorder.keyX)
+        let aDown = CGEventSource.keyState(src, key: CGKeyCode(req.hotkeyA))
+        let zDown = CGEventSource.keyState(src, key: CGKeyCode(req.hotkeyZ))
+        let xDown = CGEventSource.keyState(src, key: CGKeyCode(req.hotkeyX))
 
         // ---- X 键：两种手势靠「按下那一刻 A 在不在」区分，不靠按住时长 ----
         //
@@ -346,10 +346,6 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
             zDownSince = -1
         }
     }
-
-    static let keyA: CGKeyCode = 0x00   // A：手动缩放的“前置键”，必须按住它其它键才生效
-    static let keyZ: CGKeyCode = 0x06   // Z：放大
-    static let keyX: CGKeyCode = 0x07   // X：A+X 缓慢缩小 / 单独按则归位
 
     /// 放大：慢一点，方便对准目标。按住越久越快。
     /// 轮询是 120Hz，所以步进乘以 120 就是每秒变化的倍率。

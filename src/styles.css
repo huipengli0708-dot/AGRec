@@ -277,6 +277,21 @@ html.hud-root, body.hud-root {
   border-radius: 5px; padding: 1px 6px; font-size: 11.5px; font-family: inherit; margin: 0 2px;
 }
 
+.hotkey-field { display: inline-flex; align-items: center; gap: 6px; margin: 0 4px; }
+.hotkey-field kbd {
+  display: inline-block; min-width: 20px; text-align: center;
+  background: var(--panel-2); border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 5px; padding: 1px 6px; font-size: 11.5px; font-family: inherit;
+}
+.hotkey-set {
+  font-size: 11px; padding: 1px 8px; border-radius: 20px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+}
+.hotkey-set:hover { border-color: var(--accent); color: var(--accent); }
+.hotkey-warn { color: #e08a8a; font-size: 11px; }
+.hotkey-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 6px 0; font-size: 12.5px; }
+
+
 .build-tag {
   margin-left: 12px; font-size: 10.5px; color: var(--muted); font-weight: 400;
   border: 1px solid var(--line); border-radius: 20px; padding: 1px 8px;
