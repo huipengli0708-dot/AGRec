@@ -9,15 +9,26 @@ export function Card({ title, desc, children, right }: {
     <section className="card">
       {(title || right) && (
         <header className="card-head">
-          <div>
+          <div className="card-head-title">
             {title && <h3>{title}</h3>}
-            {desc && <p className="muted">{desc}</p>}
+            {desc && <Tip text={desc} />}
           </div>
           {right}
         </header>
       )}
       {children}
     </section>
+  );
+}
+
+/** 标题旁边的小问号：平时不占地方，鼠标放上去/聚焦才展开说明。
+ * 用来把原来常驻在标题下面的一整段说明文字收起来。 */
+export function Tip({ text }: { text: string }) {
+  return (
+    <span className="tip" tabIndex={0}>
+      <span className="tip-mark">?</span>
+      <span className="tip-bubble">{text}</span>
+    </span>
   );
 }
 

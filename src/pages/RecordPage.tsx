@@ -6,7 +6,7 @@ import {
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
   type Project, type Settings, type WindowInfo,
 } from "../lib/api";
-import { Button, Card, HotkeyField, Row, Segmented, Slider, Toggle, formatTime } from "../components/UI";
+import { Button, Card, HotkeyField, Row, Segmented, Slider, Tip, Toggle, formatTime } from "../components/UI";
 import { CursorGlyph } from "../components/CursorGlyph";
 
 type Props = {
@@ -349,7 +349,8 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
 
             {settings.zoom.trigger === "manual" && (
               <div className="hint-box">
-                <b>录制中的快捷键</b>
+                <b>录制中的快捷键</b>{" "}
+                <Tip text="键不对、换了外接键盘识别不到？点“点击设置”，自己在键盘上按一下想用的键就行，采集的是这把键盘实际上报的按键，跟型号、布局无关。两个手势看的是按下缩小键那一刻前置键在不在，跟按住多久无关。注意：录制中在输入框里打字，如果打到跟“缩小键”一样的字母会被当成归位，建议挑一个平时打字不常用的键。不做操作时倍数一直保持，画面持续跟随鼠标移动，只影响录出来的视频，不影响你自己看到的屏幕。" />
                 <div className="hotkey-row">
                   前置键 <HotkeyField value={settings.zoom.hotkeyA}
                     onChange={(v) => patchZoom({ hotkeyA: v })} /> +
@@ -363,14 +364,6 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
                     onChange={(v) => patchZoom({ hotkeyX: v })} /> — 缓慢缩小，松开停在当前倍数
                 </div>
                 <div>单独按一下缩小键（不按前置键）— 一步归位到 1.00×</div>
-                <span className="muted">
-                  键不对、换了外接键盘识别不到？点上面的“点击设置”，自己在键盘上按一下想用的键就行，
-                  采集的是这把键盘实际上报的按键，跟型号、布局无关。
-                  <br />两个手势看的是<b>按下缩小键那一刻前置键在不在</b>，跟按住多久无关。
-                  <br /><b>注意</b>：录制中在输入框里打字，如果打到跟“缩小键”一样的字母会被当成归位，
-                  建议挑一个平时打字不常用的键。
-                  <br />不做操作时倍数一直保持，画面持续跟随鼠标移动，只影响录出来的视频，不影响你自己看到的屏幕。
-                </span>
               </div>
             )}
 
