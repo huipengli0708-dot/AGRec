@@ -341,8 +341,10 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
                 <button key={z.value}
                   className={`cursor-card trigger-card ${settings.zoom.trigger === z.value ? "on" : ""}`}
                   onClick={() => patchZoom({ trigger: z.value })}>
-                  <b>{z.label}</b>
-                  <em>{z.desc}</em>
+                  <span className="trigger-card-title">
+                    <b>{z.label}</b>
+                    <Tip text={z.desc} />
+                  </span>
                 </button>
               ))}
             </div>
