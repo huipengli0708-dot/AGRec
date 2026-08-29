@@ -13,6 +13,14 @@ type Tab = "record" | "library";
 
 const windowLabel = getCurrentWindow().label;
 
+// hud / picker 这两个窗口是叠在真实桌面上方的透明覆盖层，不能带 body 的不透明底色，
+// 不然即使 Tauri 那边开了 transparent:true，页面自己画的实心背景也会把桌面整个盖住，
+// 表现出来就是整块变黑、看不到底下真实的屏幕内容。
+if (windowLabel === "hud" || windowLabel === "picker") {
+  document.documentElement.style.background = "transparent";
+  document.body.style.background = "transparent";
+}
+
 export default function App() {
   if (windowLabel === "hud") return <HudPage />;
   if (windowLabel === "picker") return <PickerPage />;

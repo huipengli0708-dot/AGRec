@@ -121,6 +121,13 @@ async fn pick_area(
     width: f64,
     height: f64,
 ) -> Result<AreaRect, String> {
+    // 选区是录制开始前的准备动作，这时候悬浮控制条不该还留在屏幕上——
+    // 万一上一次录制的收尾路径漏掉了隐藏（或者崩溃退出），这里强制关一次兜底，
+    // 不然选区遮罩上会叠出一个不该出现的悬浮条。
+    if let Some(hud) = app.get_webview_window("hud") {
+        let _ = hud.hide();
+    }
+
     let win = ensure_picker(&app)?;
     win.set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }))
         .map_err(err)?;
