@@ -81,9 +81,11 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
         // 把知录自己的窗口排除掉，否则悬浮控制条会被录进画面
         let ownApps = content.applications.filter { app in
             let bid = app.bundleIdentifier
-            return bid.hasPrefix("com.zhilu")
+            return bid.hasPrefix("com.aguang.agrec")
+                || bid.hasPrefix("com.zhilu")
                 || app.applicationName.contains("知录")
                 || app.applicationName.lowercased().contains("zhilu")
+                || app.applicationName.lowercased().contains("agrec")
         }
 
         let filter: SCContentFilter
