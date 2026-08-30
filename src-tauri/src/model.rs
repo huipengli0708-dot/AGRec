@@ -267,10 +267,18 @@ pub struct Settings {
     pub display_id: Option<u32>,
     #[serde(default)]
     pub area: Option<AreaRect>,
+
+    /// 悬浮控制条样式：preview（带实时预览）| minimal（只有圆点+计时+按钮）
+    #[serde(rename = "hudStyle", default = "default_hud_style")]
+    pub hud_style: String,
 }
 
 fn default_capture_mode() -> String {
     "display".into()
+}
+
+fn default_hud_style() -> String {
+    "preview".into()
 }
 
 impl Settings {
@@ -288,6 +296,7 @@ impl Settings {
             capture_mode: default_capture_mode(),
             display_id: None,
             area: None,
+            hud_style: default_hud_style(),
         }
     }
 }

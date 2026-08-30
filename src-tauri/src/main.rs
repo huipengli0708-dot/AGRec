@@ -195,12 +195,21 @@ fn ensure_picker(app: &tauri::AppHandle) -> Result<tauri::WebviewWindow, String>
         .map_err(|e| format!("无法创建选区窗口：{e}"))
 }
 
-fn position_hud(app: &tauri::AppHandle, hud: &tauri::WebviewWindow) {
+/// 悬浮控制条的窗口尺寸。窗口本身是透明无边框的，但它仍然会挡住底下应用的点击，
+/// 所以极简样式必须把窗口一起缩小，不能只是把预览图在页面里藏起来。
+fn hud_size(style: &str) -> (f64, f64) {
+    if style == "minimal" {
+        (250.0, 60.0)
+    } else {
+        (400.0, 300.0)
+    }
+}
+
+fn position_hud(app: &tauri::AppHandle, hud: &tauri::WebviewWindow, hud_w: f64) {
     if let Ok(Some(mon)) = app.primary_monitor() {
         let scale = mon.scale_factor();
         let pos = mon.position();
         let size = mon.size();
-        let hud_w = 400.0;
         let x = (pos.x as f64 / scale) + ((size.width as f64 / scale) - hud_w) / 2.0;
         let y = (pos.y as f64 / scale) + 14.0;
         let _ = hud.set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
@@ -300,7 +309,12 @@ fn start_recording(
             // 让它当成全新的组件重新 mount，状态清零。
             let _ = hud.eval("location.reload()");
             std::thread::sleep(std::time::Duration::from_millis(150));
-            position_hud(&app, &hud);
+            let (hud_w, hud_h) = hud_size(&load_settings(app.clone()).hud_style);
+            let _ = hud.set_size(tauri::Size::Logical(tauri::LogicalSize {
+                width: hud_w,
+                height: hud_h,
+            }));
+            position_hud(&app, &hud, hud_w);
             let _ = hud.show();
             let _ = hud.set_always_on_top(true);
             if let Some(main) = app.get_webview_window("main") {

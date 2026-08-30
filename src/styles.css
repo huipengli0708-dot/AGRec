@@ -249,6 +249,9 @@ html.hud-root, body.hud-root {
   border: 1px solid rgba(255,255,255,.1); border-radius: 999px;
   padding: 8px 14px; box-shadow: 0 8px 24px rgba(0,0,0,.5);
 }
+/* 极简样式：整个窗口就只有一条胶囊那么大，让它在窗口里居中 */
+.hud.minimal { justify-content: center; padding: 0; }
+.hud.minimal .hud-time { min-width: 54px; }
 .hud-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); animation: pulse 1.4s infinite; flex: none; }
 .hud-dot.paused { background: #ffb74d; animation: none; }
 .hud-time { font-variant-numeric: tabular-nums; font-size: 13px; min-width: 62px; }

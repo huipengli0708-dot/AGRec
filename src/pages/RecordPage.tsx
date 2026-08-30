@@ -302,6 +302,19 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
             </Row>
           </Card>
 
+          <Card title="悬浮控制条" desc="录制时停在屏幕顶部的那个小条。它已经被排除在录制画面之外，不会被录进视频">
+            <Row label="样式">
+              <Segmented
+                value={settings.hudStyle ?? "preview"}
+                options={[
+                  { value: "preview", label: "带画面预览" },
+                  { value: "minimal", label: "极简圆点" },
+                ]}
+                onChange={(v) => patch({ hudStyle: v })}
+              />
+            </Row>
+          </Card>
+
           <Card title="鼠标样式" desc="录制时不录系统指针，导出时用你选的样式重绘，放大后依然清晰">
             <div className="cursor-grid">
               {CURSOR_KINDS.map((c) => (

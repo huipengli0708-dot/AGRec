@@ -16,6 +16,8 @@ export type DisplayInfo = {
 export type WindowInfo = { id: number; title: string; app: string; width: number; height: number };
 export type AreaRect = { x: number; y: number; width: number; height: number };
 export type CaptureMode = "display" | "area" | "window";
+/** preview = 带实时预览的控制条；minimal = 只有圆点、计时和三个按钮 */
+export type HudStyle = "preview" | "minimal";
 
 export type CursorKind = "arrow" | "arrowLight" | "dot" | "ring" | "halo" | "none";
 
@@ -128,6 +130,8 @@ export type Settings = {
   captureMode: CaptureMode;
   displayId?: number | null;
   area?: AreaRect | null;
+  // 悬浮控制条样式
+  hudStyle?: HudStyle;
 };
 
 export type EnvStatus = { helper: boolean; screen: boolean; microphone: boolean; message: string };

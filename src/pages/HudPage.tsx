@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { api } from "../lib/api";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/dpi";
+import { api, type HudStyle } from "../lib/api";
 import { formatTime } from "../components/UI";
 
 type PreviewPayload = { image: string; zoom: number };
@@ -16,6 +18,9 @@ export default function HudPage() {
   const [preview, setPreview] = useState<PreviewPayload | null>(null);
   const [manualZoom, setManualZoom] = useState(1);
   const [showPreview, setShowPreview] = useState(true);
+  // 悬浮条是独立窗口，拿不到主窗口那份 settings，自己读一次配置文件。
+  // 每次开录前 Rust 都会 location.reload() 这个窗口，所以这里读到的一定是最新的。
+  const [hudStyle, setHudStyle] = useState<HudStyle>("preview");
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -45,10 +50,24 @@ export default function HudPage() {
   }, []);
 
   useEffect(() => {
+    api.loadSettings()
+      .then((cfg) => setHudStyle(cfg.hudStyle ?? "preview"))
+      .catch(() => {});   // 读不到就按默认样式来，不该因为这个挡住录制
+  }, []);
+
+  useEffect(() => {
     const p = listen<PreviewPayload>("recording-preview", (e) => setPreview(e.payload));
     const m = listen<{ value: number }>("recording-manual-zoom", (e) => setManualZoom(e.payload.value));
     return () => { p.then((f) => f()); m.then((f) => f()); };
   }, []);
+
+  // 极简样式的窗口只有一条胶囊那么高，报错文字会被窗口边缘直接裁掉。
+  // 出错时临时把窗口撑大——否则就成了「点了没反应，也看不到原因」，最难排查。
+  useEffect(() => {
+    if (hudStyle !== "minimal") return;
+    const size = error ? new LogicalSize(380, 132) : new LogicalSize(250, 60);
+    getCurrentWindow().setSize(size).catch(() => {});
+  }, [error, hudStyle]);
 
   async function togglePause() {
     setBusy(true);
@@ -76,9 +95,10 @@ export default function HudPage() {
   }
 
   const zoom = preview?.zoom ?? manualZoom;
+  const minimal = hudStyle === "minimal";
 
   return (
-    <div className="hud">
+    <div className={`hud ${minimal ? "minimal" : ""}`}>
       <div className="hud-body" data-tauri-drag-region>
         <span className={`hud-dot ${paused ? "paused" : ""} ${saving ? "saving" : ""}`} />
         {saving ? (
@@ -86,14 +106,19 @@ export default function HudPage() {
         ) : (
           <>
             <span className="hud-time">{formatTime(elapsed)}</span>
-            <span className={`hud-scale ${zoom > 1.05 ? "on" : ""}`}>{zoom.toFixed(2)}×</span>
+            {/* 极简样式下倍数只在真的放大时才冒出来，平时不占地方 */}
+            {(!minimal || zoom > 1.05) && (
+              <span className={`hud-scale ${zoom > 1.05 ? "on" : ""}`}>{zoom.toFixed(2)}×</span>
+            )}
           </>
         )}
         <div className="hud-actions">
-          <button className="hud-btn ghost" onClick={() => setShowPreview((v) => !v)}
-            title={showPreview ? "隐藏预览" : "显示预览"}>
-            {showPreview ? "▴" : "▾"}
-          </button>
+          {!minimal && (
+            <button className="hud-btn ghost" onClick={() => setShowPreview((v) => !v)}
+              title={showPreview ? "隐藏预览" : "显示预览"}>
+              {showPreview ? "▴" : "▾"}
+            </button>
+          )}
           <button className="hud-btn" onClick={togglePause} disabled={busy}
             title={paused ? "继续录制" : "暂停录制"}>
             {paused ? "▶" : "❚❚"}
@@ -102,7 +127,7 @@ export default function HudPage() {
         </div>
       </div>
       {error && <div className="hud-error">{error}</div>}
-      {showPreview && !saving && !error && (
+      {!minimal && showPreview && !saving && !error && (
         <div className="hud-preview">
           {preview ? (
             <img src={`data:image/jpeg;base64,${preview.image}`} alt="" />
