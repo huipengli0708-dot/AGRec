@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::mpsc::Receiver;
 use std::sync::Mutex;
-use tauri::{Emitter, Listener, Manager, State, WebviewUrl, WebviewWindowBuilder};
+use tauri::{Emitter, Listener, Manager, State, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
 #[derive(Default)]
 struct AppState {
@@ -615,6 +615,34 @@ fn main() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .manage(AppState::default())
+        .on_window_event(|window, event| {
+            if window.label() != "main" {
+                return;
+            }
+            let WindowEvent::CloseRequested { api, .. } = event else {
+                return;
+            };
+
+            // macOS 上关掉最后一个窗口并不会让 App 跟着退出，而 Tauri 这个版本
+            // 又没有把「点 Dock 图标」的事件透出来。窗口一旦被销毁，Dock 里就会
+            // 留下一个亮着、却怎么点都打不开的图标，只能强制退出再重开。
+            //
+            // 所以这里改成：没在录制就直接退出整个 App（关窗＝退出，符合直觉）；
+            // 正在录制就只把窗口藏起来，别把录制一起带走——悬浮控制条还在，
+            // 录完 restore_windows_after_recording 会自己把主窗口叫回来。
+            api.prevent_close();
+            let busy = window
+                .state::<AppState>()
+                .recording
+                .lock()
+                .map(|g| g.is_some())
+                .unwrap_or(false);
+            if busy {
+                let _ = window.hide();
+            } else {
+                window.app_handle().exit(0);
+            }
+        })
         .invoke_handler(tauri::generate_handler![
             check_env,
             list_displays,

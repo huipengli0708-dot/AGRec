@@ -24,6 +24,10 @@ export default function EditorPage({ project, onChange, onBack }: Props) {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [previewZoom, setPreviewZoom] = useState(true);
+  // 预览画布必须跟视频真实比例一致。比例对不上的话，object-fit: contain
+  // 会在画面上下（或左右）留出黑边，而鼠标图层是按「整个画布」的百分比定位的，
+  // 两套坐标系就差了一条黑边的宽度——放大之后这点误差还会被乘以放大倍数。
+  const [videoAspect, setVideoAspect] = useState<number | null>(null);
 
   const [opts, setOpts] = useState({
     height: project.height || 1440,
@@ -154,11 +158,21 @@ export default function EditorPage({ project, onChange, onBack }: Props) {
     <div className="editor">
       <div className="editor-main">
         <div className="stage-wrap">
-          <div className="stage" ref={stageRef}>
+          <div
+            className="stage"
+            ref={stageRef}
+            style={videoAspect ? { aspectRatio: `${videoAspect}` } : undefined}
+          >
             <video
               ref={videoRef}
               src={convertFileSrc(project.video)}
-              onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+              onLoadedMetadata={(e) => {
+                const v = e.currentTarget;
+                setDuration(v.duration);
+                if (v.videoWidth > 0 && v.videoHeight > 0) {
+                  setVideoAspect(v.videoWidth / v.videoHeight);
+                }
+              }}
               onEnded={() => setPlaying(false)}
               style={{
                 transformOrigin: "0 0",

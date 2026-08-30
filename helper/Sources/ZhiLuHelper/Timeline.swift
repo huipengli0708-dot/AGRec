@@ -38,23 +38,52 @@ final class Timeline {
             for i in 0..<n {
                 let t = request.trimStart + Double(i) * dt
                 while idx + 1 < track.samples.count && track.samples[idx + 1].t <= t { idx += 1 }
-                let s = track.samples[min(idx, track.samples.count - 1)]
-                rawX[i] = min(max(s.x / track.width, 0), 1)
-                rawY[i] = min(max(s.y / track.height, 0), 1)
-                downs[i] = s.down
+                let s0 = track.samples[min(idx, track.samples.count - 1)]
+                // 采样点之间做线性插值。直接取「上一个采样点」的话，每帧最多会落后
+                // 一个采样间隔（约 8ms）的位移，鼠标甩得快时这点差距肉眼看得出来。
+                var px = s0.x, py = s0.y
+                if idx + 1 < track.samples.count {
+                    let s1 = track.samples[idx + 1]
+                    let span = s1.t - s0.t
+                    if span > 1e-6 {
+                        let k = min(max((t - s0.t) / span, 0), 1)
+                        px = s0.x + (s1.x - s0.x) * k
+                        py = s0.y + (s1.y - s0.y) * k
+                    }
+                }
+                rawX[i] = min(max(px / track.width, 0), 1)
+                rawY[i] = min(max(py / track.height, 0), 1)
+                downs[i] = s0.down
             }
         }
 
-        var curX = rawX.first ?? 0.5, curY = rawY.first ?? 0.5
-        var focX = curX, focY = curY
         var smX = [Double](repeating: 0, count: n)
         var smY = [Double](repeating: 0, count: n)
-        var fX = [Double](repeating: 0, count: n)
-        var fY = [Double](repeating: 0, count: n)
+
+        // 指针平滑用「前向 + 反向」各滤一次（零相位滤波）。
+        // 只做一次前向 EMA 的话，画出来的指针会永远落在真实位置后面：
+        // 快速把鼠标甩到按钮上点一下时，指针还停在半路，看起来就是
+        // 「录出来的鼠标和真正点击的位置对不上」。反向再滤一次能把这个滞后抵消掉，
+        // 抖动照样被抹平。导出是离线算的、能看到完整轨迹，所以可以这么做。
+        var curX = rawX.first ?? 0.5, curY = rawY.first ?? 0.5
         for i in 0..<n {
             curX += (rawX[i] - curX) * cursorAlpha
             curY += (rawY[i] - curY) * cursorAlpha
             smX[i] = curX; smY[i] = curY
+        }
+        curX = smX.last ?? curX; curY = smY.last ?? curY
+        for i in stride(from: n - 1, through: 0, by: -1) {
+            curX += (smX[i] - curX) * cursorAlpha
+            curY += (smY[i] - curY) * cursorAlpha
+            smX[i] = curX; smY[i] = curY
+        }
+
+        // 画面跟随（取景中心）保持单向平滑——这里的滞后是故意的，
+        // 镜头慢半拍才不会跟着鼠标一起抖，而且它不影响指针画在哪。
+        var focX = rawX.first ?? 0.5, focY = rawY.first ?? 0.5
+        var fX = [Double](repeating: 0, count: n)
+        var fY = [Double](repeating: 0, count: n)
+        for i in 0..<n {
             focX += (rawX[i] - focX) * focusAlpha
             focY += (rawY[i] - focY) * focusAlpha
             fX[i] = focX; fY[i] = focY
