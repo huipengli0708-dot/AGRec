@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { LogicalSize } from "@tauri-apps/api/dpi";
 import { api, type HudStyle } from "../lib/api";
 import { formatTime } from "../components/UI";
+import { t, setLocale } from "../lib/i18n";
 
 type PreviewPayload = { image: string; zoom: number };
 
@@ -51,7 +52,7 @@ export default function HudPage() {
 
   useEffect(() => {
     api.loadSettings()
-      .then((cfg) => setHudStyle(cfg.hudStyle ?? "preview"))
+      .then((cfg) => { setLocale(cfg.locale); setHudStyle(cfg.hudStyle ?? "preview"); })
       .catch(() => {});   // 读不到就按默认样式来，不该因为这个挡住录制
   }, []);
 
@@ -102,7 +103,7 @@ export default function HudPage() {
       <div className="hud-body" data-tauri-drag-region>
         <span className={`hud-dot ${paused ? "paused" : ""} ${saving ? "saving" : ""}`} />
         {saving ? (
-          <span className="hud-saving">正在保存录制…</span>
+          <span className="hud-saving">{t("正在保存录制…")}</span>
         ) : (
           <>
             <span className="hud-time">{formatTime(elapsed)}</span>
@@ -115,15 +116,15 @@ export default function HudPage() {
         <div className="hud-actions">
           {!minimal && (
             <button className="hud-btn ghost" onClick={() => setShowPreview((v) => !v)}
-              title={showPreview ? "隐藏预览" : "显示预览"}>
+              title={showPreview ? t("隐藏预览") : t("显示预览")}>
               {showPreview ? "▴" : "▾"}
             </button>
           )}
           <button className="hud-btn" onClick={togglePause} disabled={busy}
-            title={paused ? "继续录制" : "暂停录制"}>
+            title={paused ? t("继续录制") : t("暂停录制")}>
             {paused ? "▶" : "❚❚"}
           </button>
-          <button className="hud-btn stop" onClick={stop} disabled={busy} title="结束录制">■</button>
+          <button className="hud-btn stop" onClick={stop} disabled={busy} title={t("结束录制")}>■</button>
         </div>
       </div>
       {error && <div className="hud-error">{error}</div>}
@@ -132,7 +133,7 @@ export default function HudPage() {
           {preview ? (
             <img src={`data:image/jpeg;base64,${preview.image}`} alt="" />
           ) : (
-            <div className="hud-preview-empty">正在准备预览…</div>
+            <div className="hud-preview-empty">{t("正在准备预览…")}</div>
           )}
           {zoom > 1.05 && <span className="hud-zoom-badge">{zoom.toFixed(1)}×</span>}
         </div>

@@ -271,6 +271,14 @@ pub struct Settings {
     /// 悬浮控制条样式：preview（带实时预览）| minimal（只有圆点+计时+按钮）
     #[serde(rename = "hudStyle", default = "default_hud_style")]
     pub hud_style: String,
+
+    /// 界面语言。zh-CN | en | zh-TW | ja | es
+    #[serde(default = "default_locale")]
+    pub locale: String,
+}
+
+fn default_locale() -> String {
+    "zh-CN".into()
 }
 
 fn default_capture_mode() -> String {
@@ -297,6 +305,7 @@ impl Settings {
             display_id: None,
             area: None,
             hud_style: default_hud_style(),
+            locale: default_locale(),
         }
     }
 }

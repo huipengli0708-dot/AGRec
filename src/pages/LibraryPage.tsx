@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Project } from "../lib/api";
 import { Button, Card, formatTime } from "../components/UI";
+import { t } from "../lib/i18n";
 
 export default function LibraryPage({ root, onOpen }: { root: string; onOpen: (p: Project) => void }) {
   const [items, setItems] = useState<Project[]>([]);
@@ -9,10 +10,10 @@ export default function LibraryPage({ root, onOpen }: { root: string; onOpen: (p
 
   return (
     <div className="page">
-      <Card title="我的录制" desc={`来自 ${root}`}
-        right={<Button onClick={() => api.revealInFinder(root)}>在访达中打开</Button>}>
+      <Card title={t("我的录制")} desc={`来自 ${root}`}
+        right={<Button onClick={() => api.revealInFinder(root)}>{t("在访达中打开")}</Button>}>
         {items.length === 0 ? (
-          <p className="muted">还没有录制记录。回到「录制」页开始第一次录屏吧。</p>
+          <p className="muted">{t("还没有录制记录。回到「录制」页开始第一次录屏吧。")}</p>
         ) : (
           <div className="project-list">
             {items.map((p) => (

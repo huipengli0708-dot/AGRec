@@ -6,6 +6,7 @@ import {
   type Settings, type WindowInfo,
 } from "../lib/api";
 import { Button, Tip, formatTime } from "../components/UI";
+import { t } from "../lib/i18n";
 
 type Props = {
   settings: Settings;
@@ -115,8 +116,8 @@ export default function RecordPage({ settings, onSettings }: Props) {
 
   async function start() {
     setError("");
-    if (captureMode === "area" && !area) { setError("请先框选录制区域"); return; }
-    if (captureMode === "window" && windowId == null) { setError("请先选择要录制的窗口"); return; }
+    if (captureMode === "area" && !area) { setError(t("请先框选录制区域")); return; }
+    if (captureMode === "window" && windowId == null) { setError(t("请先选择要录制的窗口")); return; }
     setBusy(true);
     try {
       await api.ensureDir(settings.saveDir);
@@ -170,8 +171,8 @@ export default function RecordPage({ settings, onSettings }: Props) {
       )}
       {env && env.helper && !env.screen && (
         <div className="banner warn">
-          还没有「屏幕录制」权限，macOS 会拒绝抓取画面。
-          <Button kind="ghost" onClick={() => api.openScreenSettings()}>去系统设置开启</Button>
+          {t("还没有「屏幕录制」权限，macOS 会拒绝抓取画面。")}
+          <Button kind="ghost" onClick={() => api.openScreenSettings()}>{t("去系统设置开启")}</Button>
         </div>
       )}
       {error && <div className="banner error">{error}</div>}
@@ -180,8 +181,8 @@ export default function RecordPage({ settings, onSettings }: Props) {
         <div className="recording-hero">
           <div className="pulse" />
           <div className="time">{formatTime(elapsed)}</div>
-          <p className="muted">正在录制，屏幕上方的悬浮控制条可以暂停 / 继续 / 结束。</p>
-          <Button kind="danger" onClick={stop} disabled={busy}>结束录制并进入编辑</Button>
+          <p className="muted">{t("正在录制，屏幕上方的悬浮控制条可以暂停 / 继续 / 结束。")}</p>
+          <Button kind="danger" onClick={stop} disabled={busy}>{t("结束录制并进入编辑")}</Button>
         </div>
       ) : (
         <>
@@ -191,8 +192,8 @@ export default function RecordPage({ settings, onSettings }: Props) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" />
               </svg>
-              <b>整个屏幕</b>
-              <em>{displays.find((d) => d.id === displayId)?.name ?? "主显示器"}</em>
+              <b>{t("整个屏幕")}</b>
+              <em>{displays.find((d) => d.id === displayId)?.name ?? t("主显示器")}</em>
             </button>
 
             <button className={`scope-tile ${captureMode === "window" ? "on" : ""}`}
@@ -200,8 +201,8 @@ export default function RecordPage({ settings, onSettings }: Props) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <rect x="3" y="5" width="18" height="15" rx="2" /><path d="M3 9h18M7 7h.01" />
               </svg>
-              <b>应用窗口</b>
-              <em>{windowId != null ? windows.find((w) => w.id === windowId)?.app ?? "已选窗口" : "选一个窗口"}</em>
+              <b>{t("应用窗口")}</b>
+              <em>{windowId != null ? windows.find((w) => w.id === windowId)?.app ?? t("已选窗口") : t("选一个窗口")}</em>
             </button>
 
             <button className={`scope-tile ${captureMode === "area" ? "on" : ""}`}
@@ -209,14 +210,14 @@ export default function RecordPage({ settings, onSettings }: Props) {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" />
               </svg>
-              <b>框选区域</b>
-              <em>{area ? `${Math.round(area.width)}×${Math.round(area.height)}` : "拖一个框"}</em>
+              <b>{t("框选区域")}</b>
+              <em>{area ? `${Math.round(area.width)}×${Math.round(area.height)}` : t("拖一个框")}</em>
             </button>
           </div>
 
           {captureMode === "display" && displays.length > 1 && (
             <div className="panel-row">
-              <span className="panel-row-label">显示器</span>
+              <span className="panel-row-label">{t("显示器")}</span>
               <select className="panel-select" value={displayId}
                 onChange={(e) => setDisplayId(Number(e.target.value))}>
                 {displays.map((d) => (
@@ -230,7 +231,7 @@ export default function RecordPage({ settings, onSettings }: Props) {
             <>
               {displays.length > 1 && (
                 <div className="panel-row">
-                  <span className="panel-row-label">所在显示器</span>
+                  <span className="panel-row-label">{t("所在显示器")}</span>
                   <select className="panel-select" value={displayId}
                     onChange={(e) => onSettings({ ...settings, displayId: Number(e.target.value), area: null })}>
                     {displays.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -238,9 +239,9 @@ export default function RecordPage({ settings, onSettings }: Props) {
                 </div>
               )}
               <div className="panel-row">
-                <span className="panel-row-label">选区</span>
+                <span className="panel-row-label">{t("选区")}</span>
                 <Button onClick={pickArea} disabled={pickingArea}>
-                  {pickingArea ? "请在屏幕上拖拽…" : area ? "重新框选" : "开始框选"}
+                  {pickingArea ? t("请在屏幕上拖拽…") : area ? t("重新框选") : t("开始框选")}
                 </Button>
               </div>
             </>
@@ -248,13 +249,13 @@ export default function RecordPage({ settings, onSettings }: Props) {
 
           {captureMode === "window" && (
             <div className="panel-row col">
-              <span className="panel-row-label">目标窗口</span>
+              <span className="panel-row-label">{t("目标窗口")}</span>
               {windows.length === 0 ? (
-                <span className="muted small">没找到可录制的窗口，确认目标应用没有最小化</span>
+                <span className="muted small">{t("没找到可录制的窗口，确认目标应用没有最小化")}</span>
               ) : (
                 <select className="panel-select wide" value={windowId ?? ""}
                   onChange={(e) => setWindowId(Number(e.target.value))}>
-                  <option value="" disabled>选一个窗口…</option>
+                  <option value="" disabled>{t("选一个窗口…")}</option>
                   {windows.map((w) => (
                     <option key={w.id} value={w.id}>{w.app} · {w.title}</option>
                   ))}
@@ -267,43 +268,43 @@ export default function RecordPage({ settings, onSettings }: Props) {
 
           <div className="panel-row">
             <span className="panel-row-label">
-              声音
-              <Tip text="录制内核一次只能录一路声音，所以麦克风和系统声音是三选一，不能同时开。想要「边讲解边录电脑声音」得后期把两条轨道合起来。" />
+              {t("声音")}
+              <Tip text={t("录制内核一次只能录一路声音，所以麦克风和系统声音是三选一，不能同时开。想要「边讲解边录电脑声音」得后期把两条轨道合起来。")} />
             </span>
             <select className="panel-select" value={settings.audioSource}
               onChange={(e) => patch({ audioSource: e.target.value as Settings["audioSource"] })}>
-              <option value="mic">麦克风讲解</option>
-              <option value="system">系统声音</option>
-              <option value="none">不录声音</option>
+              <option value="mic">{t("麦克风讲解")}</option>
+              <option value="system">{t("系统声音")}</option>
+              <option value="none">{t("不录声音")}</option>
             </select>
           </div>
 
           <div className="panel-row">
             <span className="panel-row-label">
-              自动放大
-              <Tip text={ZOOM_TRIGGERS.find((z) => z.value === settings.zoom.trigger)?.desc ?? ""} />
+              {t("自动放大")}
+              <Tip text={t(ZOOM_TRIGGERS.find((z) => z.value === settings.zoom.trigger)?.desc ?? "")} />
             </span>
             <select className="panel-select" value={settings.zoom.trigger}
               onChange={(e) => patchZoom({ trigger: e.target.value as Settings["zoom"]["trigger"] })}>
               {ZOOM_TRIGGERS.map((z) => (
-                <option key={z.value} value={z.value}>{z.label}</option>
+                <option key={z.value} value={z.value}>{t(z.label)}</option>
               ))}
             </select>
           </div>
 
           <div className="panel-row">
-            <span className="panel-row-label">本次名称</span>
-            <input className="text" placeholder="留空叫「录屏」"
+            <span className="panel-row-label">{t("本次名称")}</span>
+            <input className="text" placeholder={t("留空叫「录屏」")}
               value={name} onChange={(e) => setName(e.target.value)} />
           </div>
 
           <button className="start-btn" onClick={start} disabled={busy || !displays.length}>
-            <i />开始录制
+            <i />{t("开始录制")}
           </button>
 
           <div className="panel-foot">
-            存到 {settings.saveDir.split("/").slice(-2).join(" / ")}
-            <button className="linkish" onClick={() => api.openSettings("general")}>更改</button>
+            {t("存到")} {settings.saveDir.split("/").slice(-2).join(" / ")}
+            <button className="linkish" onClick={() => api.openSettings("general")}>{t("更改")}</button>
           </div>
         </>
       )}

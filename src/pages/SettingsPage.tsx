@@ -6,6 +6,7 @@ import {
 } from "../lib/api";
 import { Button, Card, HotkeyField, Row, Segmented, Slider, Tip, Toggle } from "../components/UI";
 import { CursorGlyph } from "../components/CursorGlyph";
+import { t, LOCALES, type Locale } from "../lib/i18n";
 import UpdateButton from "../components/UpdateButton";
 
 type Props = {
@@ -22,7 +23,7 @@ export const SECTIONS: { key: SettingsSection; label: string }[] = [
   { key: "zoom", label: "放大与快捷键" },
   { key: "cursor", label: "鼠标指针" },
   { key: "hud", label: "悬浮控制条" },
-  { key: "about", label: "关于" },
+  { key: "about", label: "关于" },  // label 是中文原文，渲染时再过 t()
 ];
 
 /** 悬浮控制条的样式示意图。纯静态，不联动真实录制状态，
@@ -31,7 +32,7 @@ function HudSample({ style }: { style: HudStyle }) {
   const minimal = style === "minimal";
   return (
     <div className="hud-sample">
-      {!minimal && <div className="hud-sample-screen">实时画面</div>}
+      {!minimal && <div className="hud-sample-screen">{t("实时画面")}</div>}
       <div className="hud-sample-bar">
         <span className="hud-sample-dot" />
         <span className="hud-sample-time">00:12</span>
@@ -66,37 +67,49 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
           <button key={s.key}
             className={section === s.key ? "on" : ""}
             onClick={() => onSection(s.key)}>
-            {s.label}
+            {t(s.label)}
           </button>
         ))}
       </nav>
 
       <div className="settings-main">
         {section === "general" && (
-          <Card title="保存位置" desc="每次录制会在这里新建一个项目文件夹">
-            <Row label="文件夹">
+          <>
+          <Card title={t("语言")} desc={t("界面语言，切换后立即生效")}>
+            <Row label={t("语言")}>
+              <Segmented
+                value={settings.locale ?? "zh-CN"}
+                options={LOCALES.map((l) => ({ value: l.value, label: l.label }))}
+                onChange={(v: Locale) => patch({ locale: v })}
+              />
+            </Row>
+          </Card>
+
+          <Card title={t("保存位置")} desc={t("每次录制会在这里新建一个项目文件夹")}>
+            <Row label={t("文件夹")}>
               <div className="path-row">
                 <input className="text" value={settings.saveDir}
                   onChange={(e) => patch({ saveDir: e.target.value })} />
-                <Button onClick={pickDir}>选择…</Button>
+                <Button onClick={pickDir}>{t("选择…")}</Button>
               </div>
             </Row>
           </Card>
+          </>
         )}
 
         {section === "quality" && (
-          <Card title="画质" desc="按显示器 / 选区 / 窗口的原始比例输出，高度对齐所选档位">
-            <Row label="清晰度">
+          <Card title={t("画质")} desc={t("按显示器 / 选区 / 窗口的原始比例输出，高度对齐所选档位")}>
+            <Row label={t("清晰度")}>
               <Segmented
                 value={settings.defaultHeight}
-                options={RESOLUTIONS.map((r) => ({ value: r.height, label: r.label }))}
+                options={RESOLUTIONS.map((r) => ({ value: r.height, label: t(r.label) }))}
                 onChange={(h) => {
                   const r = RESOLUTIONS.find((x) => x.height === h)!;
                   patch({ defaultHeight: h, defaultBitrate: r.bitrate });
                 }}
               />
             </Row>
-            <Row label="帧率">
+            <Row label={t("帧率")}>
               <Segmented
                 value={settings.defaultFps}
                 options={[
@@ -106,7 +119,7 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
                 onChange={(v) => patch({ defaultFps: v })}
               />
             </Row>
-            <Row label="编码" hint="HEVC 同画质体积更小；H.264 兼容性最好">
+            <Row label={t("编码")} hint={t("HEVC 同画质体积更小；H.264 兼容性最好")}>
               <Segmented
                 value={settings.defaultCodec}
                 options={[
@@ -116,7 +129,7 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
                 onChange={(v) => patch({ defaultCodec: v })}
               />
             </Row>
-            <Row label="码率" hint={`${res.label} 推荐 ${res.bitrate} Mbps`}>
+            <Row label={t("码率")} hint={`${res.label} · ${res.bitrate} Mbps`}>
               <Slider value={settings.defaultBitrate} min={8} max={160} step={2}
                 onChange={(v) => patch({ defaultBitrate: v })}
                 format={(v) => `${v} Mbps`} />
@@ -125,15 +138,15 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
         )}
 
         {section === "zoom" && (
-          <Card title="放大方式与参数" desc="这里选哪种，下面就调哪种的参数；改了也会同步到录制面板上">
+          <Card title={t("放大方式与参数")} desc={t("这里选哪种，下面就调哪种的参数；改了也会同步到录制面板上")}>
             <div className="cursor-grid">
               {ZOOM_TRIGGERS.map((z) => (
                 <button key={z.value}
                   className={`cursor-card trigger-card ${settings.zoom.trigger === z.value ? "on" : ""}`}
                   onClick={() => patchZoom({ trigger: z.value })}>
                   <span className="trigger-card-title">
-                    <b>{z.label}</b>
-                    <Tip text={z.desc} />
+                    <b>{t(z.label)}</b>
+                    <Tip text={t(z.desc)} />
                   </span>
                 </button>
               ))}
@@ -146,7 +159,7 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
 
             {settings.zoom.trigger === "manual" && (
               <div className="hint-box">
-                <b>录制中的快捷键</b>{" "}
+                <b>{t("录制中的快捷键")}</b>{" "}
                 <Tip text="键不对、换了外接键盘识别不到？点“点击设置”，自己在键盘上按一下想用的键就行，采集的是这把键盘实际上报的按键，跟型号、布局无关。两个手势看的是按下缩小键那一刻前置键在不在，跟按住多久无关。注意：录制中在输入框里打字，如果打到跟“缩小键”一样的字母会被当成归位，建议挑一个平时打字不常用的键。不做操作时倍数一直保持，画面持续跟随鼠标移动，只影响录出来的视频，不影响你自己看到的屏幕。" />
                 <div className="hotkey-row">
                   前置键 <HotkeyField value={settings.zoom.hotkeyA}
@@ -166,15 +179,15 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
 
             {settings.zoom.trigger !== "none" && (
               <>
-                <Row label="放大倍数" hint={settings.zoom.trigger === "manual" ? "手动模式下这是起始倍数" : undefined}>
+                <Row label={t("放大倍数")} hint={settings.zoom.trigger === "manual" ? t("手动模式下这是起始倍数") : undefined}>
                   <Slider value={settings.zoom.scale} min={1.2} max={3} step={0.1}
                     onChange={(v) => patchZoom({ scale: v })} format={(v) => `${v.toFixed(1)}×`} />
                 </Row>
-                <Row label="缓入时长" hint="二次方缓出，越长越柔和">
+                <Row label={t("缓入时长")} hint={t("二次方缓出，越长越柔和")}>
                   <Slider value={settings.zoom.zoomIn} min={0.2} max={2.5} step={0.1}
                     onChange={(v) => patchZoom({ zoomIn: v })} format={(v) => `${v.toFixed(1)} 秒`} />
                 </Row>
-                <Row label="缓出时长">
+                <Row label={t("缓出时长")}>
                   <Slider value={settings.zoom.zoomOut} min={0.2} max={2.5} step={0.1}
                     onChange={(v) => patchZoom({ zoomOut: v })} format={(v) => `${v.toFixed(1)} 秒`} />
                 </Row>
@@ -183,18 +196,18 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
 
             {(settings.zoom.trigger === "dwell" || settings.zoom.trigger === "click") && (
               <>
-                <Row label="保持时长" hint="触发后至少放大多久">
+                <Row label={t("保持时长")} hint={t("触发后至少放大多久")}>
                   <Slider value={settings.zoom.hold} min={0.4} max={6} step={0.2}
                     onChange={(v) => patchZoom({ hold: v })} format={(v) => `${v.toFixed(1)} 秒`} />
                 </Row>
-                <Row label="放大后跟随鼠标平移" hint="关掉则锁定在触发点">
+                <Row label={t("放大后跟随鼠标平移")} hint={t("关掉则锁定在触发点")}>
                   <Toggle value={settings.zoom.follow} onChange={(v) => patchZoom({ follow: v })} />
                 </Row>
               </>
             )}
 
             {settings.zoom.trigger === "dwell" && (
-              <Row label="停留判定" hint="在多小的范围里停多久算“在讲这里”">
+              <Row label={t("停留判定")}>
                 <div className="inline">
                   <Slider value={settings.zoom.dwellTime} min={0.3} max={3} step={0.1}
                     onChange={(v) => patchZoom({ dwellTime: v })} format={(v) => `${v.toFixed(1)} 秒`} />
@@ -208,7 +221,7 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
         )}
 
         {section === "cursor" && (
-          <Card title="鼠标样式" desc="录制时不录系统指针，导出时用你选的样式重绘，放大后依然清晰">
+          <Card title={t("鼠标样式")} desc={t("录制时不录系统指针，导出时用你选的样式重绘，放大后依然清晰")}>
             <div className="cursor-grid">
               {CURSOR_KINDS.map((c) => (
                 <button key={c.value}
@@ -218,15 +231,15 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
                     <CursorGlyph kind={c.value} color={settings.cursor.color}
                       outlineColor={settings.cursor.outlineColor} size={44} />
                   </div>
-                  <span>{c.label}</span>
+                  <span>{t(c.label)}</span>
                 </button>
               ))}
             </div>
-            <Row label="指针大小">
+            <Row label={t("指针大小")}>
               <Slider value={settings.cursor.size} min={0.8} max={3} step={0.1}
                 onChange={(v) => patchCursor({ size: v })} format={(v) => `${v.toFixed(1)}×`} />
             </Row>
-            <Row label="主色 / 描边">
+            <Row label={t("主色 / 描边")}>
               <div className="inline">
                 <input type="color" value={settings.cursor.color}
                   onChange={(e) => patchCursor({ color: e.target.value })} />
@@ -234,15 +247,15 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
                   onChange={(e) => patchCursor({ outlineColor: e.target.value })} />
               </div>
             </Row>
-            <Row label="点击水波纹" hint="点击时出现扩散圆环，观众更容易注意到">
+            <Row label={t("点击水波纹")} hint={t("点击时出现扩散圆环，观众更容易注意到")}>
               <Toggle value={settings.cursor.clickRipple}
                 onChange={(v) => patchCursor({ clickRipple: v })} />
             </Row>
-            <Row label="指针跟手程度" hint="越低越平滑，越高越贴近真实轨迹">
+            <Row label={t("指针跟手程度")} hint={t("越低越平滑，越高越贴近真实轨迹")}>
               <Slider value={settings.cursor.smoothing} min={0.1} max={1} step={0.05}
                 onChange={(v) => patchCursor({ smoothing: v })} format={(v) => v.toFixed(2)} />
             </Row>
-            <Row label="放大时指针跟着变大">
+            <Row label={t("放大时指针跟着变大")}>
               <Toggle value={settings.cursor.scaleWithZoom}
                 onChange={(v) => patchCursor({ scaleWithZoom: v })} />
             </Row>
@@ -250,13 +263,13 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
         )}
 
         {section === "hud" && (
-          <Card title="悬浮控制条" desc="录制时停在屏幕顶部的那个小条。它已经被排除在录制画面之外，不会被录进视频">
-            <Row label="样式">
+          <Card title={t("悬浮控制条")} desc={t("录制时停在屏幕顶部的那个小条。它已经被排除在录制画面之外，不会被录进视频")}>
+            <Row label={t("样式")}>
               <Segmented
                 value={settings.hudStyle ?? "preview"}
                 options={[
-                  { value: "preview", label: "画面预览" },
-                  { value: "minimal", label: "极简圆点" },
+                  { value: "preview", label: t("画面预览") },
+                  { value: "minimal", label: t("极简圆点") },
                 ]}
                 onChange={(v) => patch({ hudStyle: v })}
               />
@@ -266,20 +279,20 @@ export default function SettingsPage({ settings, onSettings, section, onSection 
         )}
 
         {section === "about" && (
-          <Card title="关于 AGRec" desc="为知识博主做的 macOS 录屏工具，开源、免费">
-            <Row label="当前版本">
+          <Card title={t("关于 AGRec")} desc={t("为知识博主做的 macOS 录屏工具，开源、免费")}>
+            <Row label={t("当前版本")}>
               <span className="muted">
-                {BUILD_INFO.isDev ? "开发版" : "打包版"} · {BUILD_INFO.time}
+                {BUILD_INFO.isDev ? t("开发版") : t("打包版")} · {BUILD_INFO.time}
               </span>
             </Row>
             {!BUILD_INFO.isDev && (
-              <Row label="软件更新">
+              <Row label={t("软件更新")}>
                 <UpdateButton />
               </Row>
             )}
-            <Row label="源代码">
+            <Row label={t("源代码")}>
               <Button onClick={() => api.openPath("https://github.com/huipengli0708-dot/AGRec")}>
-                在 GitHub 上查看
+                {t("在 GitHub 上查看")}
               </Button>
             </Row>
           </Card>

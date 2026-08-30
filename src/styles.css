@@ -223,8 +223,8 @@ body {
 
 /* ---------- 紧凑录制面板（main 窗口，约 400 宽） ---------- */
 .panel {
-  flex: 1; overflow-y: auto; padding: 14px 14px 18px;
-  display: flex; flex-direction: column; gap: 10px;
+  flex: 1; overflow-y: auto; padding: 14px 14px 16px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 
 /* 录制范围：三块大方砖，一眼看清「录什么」 */
@@ -246,10 +246,11 @@ body {
 .scope-tile.on svg { color: var(--accent); }
 
 /* 面板里的一行：左边标签、右边控件 */
-.panel-row { display: flex; align-items: center; gap: 10px; min-height: 34px; }
+.panel-row { display: flex; align-items: center; gap: 10px; min-height: 32px; }
 .panel-row.col { flex-direction: column; align-items: stretch; gap: 6px; }
+/* 标签列固定宽度，右边的控件才会在各行之间对齐成一条竖线 */
 .panel-row-label {
-  font-size: 13px; color: var(--muted); flex: none; min-width: 66px;
+  font-size: 13px; color: var(--muted); flex: none; width: 74px;
   display: inline-flex; align-items: center; gap: 4px;
 }
 .panel-row .text { flex: 1; min-width: 0; }
@@ -259,10 +260,10 @@ body {
   font-size: 13px; font-family: inherit; cursor: pointer;
 }
 .panel-select.wide { width: 100%; }
-.panel-divider { height: 1px; background: var(--line); margin: 2px 0; }
+.panel-divider { height: 1px; background: var(--line); margin: 4px 0 2px; }
 
 .start-btn {
-  margin-top: 4px; width: 100%; padding: 12px; border: none; border-radius: 10px;
+  margin-top: 8px; width: 100%; padding: 12px; border: none; border-radius: 10px;
   background: var(--accent); color: #fff; font-size: 14.5px; font-weight: 600;
   cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
   font-family: inherit;
@@ -270,7 +271,7 @@ body {
 .start-btn:disabled { opacity: .45; cursor: default; }
 .start-btn i { width: 9px; height: 9px; border-radius: 50%; background: #fff; display: block; }
 .panel-foot {
-  font-size: 11.5px; color: var(--muted); text-align: center;
+  font-size: 11.5px; color: var(--muted); text-align: center; padding-bottom: 2px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 

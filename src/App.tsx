@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 import { api, type Project, type Settings, type SettingsSection } from "./lib/api";
+import { t, setLocale } from "./lib/i18n";
 import RecordPage from "./pages/RecordPage";
 import EditorPage from "./pages/EditorPage";
 import LibraryPage from "./pages/LibraryPage";
@@ -52,7 +53,7 @@ function EditorWindow() {
   }, []);
 
   if (error) return <div className="loading">{error}</div>;
-  if (!project) return <div className="loading">正在打开录制…</div>;
+  if (!project) return <div className="loading">{t("正在打开录制…")}</div>;
 
   return (
     <EditorPage
@@ -85,7 +86,10 @@ function SettingsWindow() {
     return () => { un.then((f) => f()); };
   }, []);
 
-  if (!settings) return <div className="loading">正在读取设置…</div>;
+  // 必须在 render 阶段设，不能放进 effect：effect 在渲染之后才跑，
+  // 那样第一帧会用旧语言画出来，切换语言时会闪一下。
+  setLocale(settings?.locale);
+  if (!settings) return <div className="loading">{t("正在读取设置…")}</div>;
 
   return (
     <SettingsPage
@@ -124,7 +128,8 @@ function MainApp() {
     api.saveSettings(s).catch(() => {});
   }
 
-  if (!settings) return <div className="loading">正在启动AGRec…</div>;
+  setLocale(settings?.locale);
+  if (!settings) return <div className="loading">{t("正在启动AGRec…")}</div>;
 
   return (
     <div className="shell">
@@ -134,16 +139,16 @@ function MainApp() {
         <div className="brand">AGRec</div>
         <nav>
           <button className={tab === "record" ? "on" : ""} onClick={() => setTab("record")}
-            title="录制">
+            title={t("录制")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="1.9"><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" /></svg>
           </button>
           <button className={tab === "library" ? "on" : ""} onClick={() => setTab("library")}
-            title="我的录制">
+            title={t("我的录制")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="1.9"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18" /></svg>
           </button>
-          <button className="gear" onClick={() => api.openSettings()} title="设置">
+          <button className="gear" onClick={() => api.openSettings()} title={t("设置")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />

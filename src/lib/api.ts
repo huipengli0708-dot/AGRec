@@ -7,6 +7,7 @@ export const BUILD_INFO = {
 };
 
 import { invoke } from "@tauri-apps/api/core";
+import type { Locale } from "./i18n";
 
 export type DisplayInfo = {
   id: number; width: number; height: number;
@@ -135,6 +136,7 @@ export type Settings = {
   area?: AreaRect | null;
   // 悬浮控制条样式
   hudStyle?: HudStyle;
+  locale?: Locale;
 };
 
 export type EnvStatus = { helper: boolean; screen: boolean; microphone: boolean; message: string };
