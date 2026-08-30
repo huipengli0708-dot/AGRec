@@ -15,13 +15,14 @@
       {
         "label": "main",
         "title": "AGRec · 录屏",
-        "width": 1180,
-        "height": 780,
-        "minWidth": 960,
-        "minHeight": 640,
+        "width": 400,
+        "height": 620,
+        "minWidth": 380,
+        "minHeight": 520,
         "resizable": true,
         "titleBarStyle": "Overlay",
-        "hiddenTitle": true
+        "hiddenTitle": true,
+        "maxWidth": 560
       },
       {
         "label": "hud",

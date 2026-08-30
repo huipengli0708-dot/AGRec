@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
-import { api, BUILD_INFO, type Project, type Settings, type SettingsSection } from "./lib/api";
+import { api, type Project, type Settings, type SettingsSection } from "./lib/api";
 import RecordPage from "./pages/RecordPage";
 import EditorPage from "./pages/EditorPage";
 import LibraryPage from "./pages/LibraryPage";
 import HudPage from "./pages/HudPage";
 import PickerPage from "./pages/PickerPage";
 import SettingsPage from "./pages/SettingsPage";
-import UpdateButton from "./components/UpdateButton";
 
 type Tab = "record" | "library";
 
@@ -130,16 +129,20 @@ function MainApp() {
   return (
     <div className="shell">
       <header className="titlebar" data-tauri-drag-region>
-        <div className="brand">
-          AGRec<em>为知识博主做的录屏工具</em>
-          <span className={`build-tag ${BUILD_INFO.isDev ? "dev" : ""}`}>
-            {BUILD_INFO.isDev ? "开发版" : "打包版"} · {BUILD_INFO.time}
-          </span>
-        </div>
+        {/* 窗口只有 400 宽，标题栏放不下副标题、版本号和「检查更新」了。
+            版本号和检查更新都已经搬进「设置 · 关于」，这里只留品牌和两个图标。 */}
+        <div className="brand">AGRec</div>
         <nav>
-          {!BUILD_INFO.isDev && <UpdateButton />}
-          <button className={tab === "record" ? "on" : ""} onClick={() => setTab("record")}>录制</button>
-          <button className={tab === "library" ? "on" : ""} onClick={() => setTab("library")}>我的录制</button>
+          <button className={tab === "record" ? "on" : ""} onClick={() => setTab("record")}
+            title="录制">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.9"><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" /></svg>
+          </button>
+          <button className={tab === "library" ? "on" : ""} onClick={() => setTab("library")}
+            title="我的录制">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.9"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18" /></svg>
+          </button>
           <button className="gear" onClick={() => api.openSettings()} title="设置">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">

@@ -5,7 +5,7 @@ import {
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
   type Settings, type WindowInfo,
 } from "../lib/api";
-import { Button, Card, Row, Segmented, Tip, formatTime } from "../components/UI";
+import { Button, Tip, formatTime } from "../components/UI";
 
 type Props = {
   settings: Settings;
@@ -161,7 +161,7 @@ export default function RecordPage({ settings, onSettings }: Props) {
 
 
   return (
-    <div className="page">
+    <div className="panel">
       {env && !env.helper && (
         <div className="banner warn">
           录制内核尚未编译。请在项目根目录执行 <code>./scripts/build-helper.sh</code> 后重启应用。
@@ -185,131 +185,125 @@ export default function RecordPage({ settings, onSettings }: Props) {
         </div>
       ) : (
         <>
-          <Card title="录制范围" desc="整屏、框选一块区域，或者只录某个应用窗口">
-            <Row label="范围类型">
-              <Segmented
-                value={captureMode}
-                options={[
-                  { value: "display", label: "整个屏幕" },
-                  { value: "area", label: "自定义选区" },
-                  { value: "window", label: "应用窗口" },
-                ]}
-                onChange={setCaptureMode}
-              />
-            </Row>
-            {captureMode === "display" && (
-              <Row label="显示器">
-                <Segmented
-                  value={displayId}
-                  options={displays.map((d) => ({
-                    value: d.id,
-                    label: `${d.name}（${d.width}×${d.height}）`,
-                  }))}
-                  onChange={setDisplayId}
-                />
-              </Row>
-            )}
-            {captureMode === "area" && (
-              <>
-                <Row label="所在显示器" hint="选区会在这台显示器上框选">
-                  <Segmented
-                    value={displayId}
-                    options={displays.map((d) => ({ value: d.id, label: d.name }))}
-                    onChange={(v) => onSettings({ ...settings, displayId: v, area: null })}
-                  />
-                </Row>
-                <Row label="选区">
-                  <div className="inline">
-                    <Button onClick={pickArea} disabled={pickingArea}>
-                      {pickingArea ? "请在屏幕上拖拽框选…" : area ? "重新框选" : "开始框选"}
-                    </Button>
-                    {area && (
-                      <span className="muted small">
-                        已选定 {Math.round(area.width)} × {Math.round(area.height)}
-                      </span>
-                    )}
-                  </div>
-                </Row>
-              </>
-            )}
-            {captureMode === "window" && (
-              <Row label="目标窗口">
-                {windows.length === 0 ? (
-                  <span className="muted small">没有找到可录制的窗口，确认目标应用没有最小化</span>
-                ) : (
-                  <div className="window-list">
-                    {windows.map((w) => (
-                      <button key={w.id}
-                        className={`window-item ${windowId === w.id ? "on" : ""}`}
-                        onClick={() => setWindowId(w.id)}>
-                        <b>{w.title}</b>
-                        <em>{w.app} · {w.width}×{w.height}</em>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </Row>
-            )}
-          </Card>
+          <div className="scope-tiles">
+            <button className={`scope-tile ${captureMode === "display" ? "on" : ""}`}
+              onClick={() => setCaptureMode("display")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" />
+              </svg>
+              <b>整个屏幕</b>
+              <em>{displays.find((d) => d.id === displayId)?.name ?? "主显示器"}</em>
+            </button>
 
+            <button className={`scope-tile ${captureMode === "window" ? "on" : ""}`}
+              onClick={() => setCaptureMode("window")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <rect x="3" y="5" width="18" height="15" rx="2" /><path d="M3 9h18M7 7h.01" />
+              </svg>
+              <b>应用窗口</b>
+              <em>{windowId != null ? windows.find((w) => w.id === windowId)?.app ?? "已选窗口" : "选一个窗口"}</em>
+            </button>
 
+            <button className={`scope-tile ${captureMode === "area" ? "on" : ""}`}
+              onClick={() => setCaptureMode("area")}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+                <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" />
+              </svg>
+              <b>框选区域</b>
+              <em>{area ? `${Math.round(area.width)}×${Math.round(area.height)}` : "拖一个框"}</em>
+            </button>
+          </div>
 
-
-
-
-
-
-
-          <Card title="声音" desc="麦克风录你的讲解；系统声音录电脑本身发出的声音（视频、音乐、提示音）">
-            <Row label="录什么声音">
-              <Segmented
-                value={settings.audioSource}
-                options={[
-                  { value: "mic", label: "麦克风讲解" },
-                  { value: "system", label: "系统声音" },
-                  { value: "none", label: "不录声音" },
-                ]}
-                onChange={(v) => patch({ audioSource: v })}
-              />
-            </Row>
-          </Card>
-
-          <Card title="放大方式" desc="五选一，录完后按这个规则生成放大片段，编辑器里还能逐段微调">
-            <div className="cursor-grid">
-              {ZOOM_TRIGGERS.map((z) => (
-                <button key={z.value}
-                  className={`cursor-card trigger-card ${settings.zoom.trigger === z.value ? "on" : ""}`}
-                  onClick={() => patchZoom({ trigger: z.value })}>
-                  <span className="trigger-card-title">
-                    <b>{z.label}</b>
-                    <Tip text={z.desc} />
-                  </span>
-                </button>
-              ))}
+          {captureMode === "display" && displays.length > 1 && (
+            <div className="panel-row">
+              <span className="panel-row-label">显示器</span>
+              <select className="panel-select" value={displayId}
+                onChange={(e) => setDisplayId(Number(e.target.value))}>
+                {displays.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}（{d.width}×{d.height}）</option>
+                ))}
+              </select>
             </div>
-            {settings.zoom.trigger !== "none" && (
-              <div className="settings-note">
-                倍数、缓入缓出
-                {settings.zoom.trigger === "manual" && "、录制中用哪几个键"}
-                这些参数在
-                <button className="linkish" onClick={() => api.openSettings("zoom")}>设置 · 放大与快捷键</button>
-                里调。
+          )}
+
+          {captureMode === "area" && (
+            <>
+              {displays.length > 1 && (
+                <div className="panel-row">
+                  <span className="panel-row-label">所在显示器</span>
+                  <select className="panel-select" value={displayId}
+                    onChange={(e) => onSettings({ ...settings, displayId: Number(e.target.value), area: null })}>
+                    {displays.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  </select>
+                </div>
+              )}
+              <div className="panel-row">
+                <span className="panel-row-label">选区</span>
+                <Button onClick={pickArea} disabled={pickingArea}>
+                  {pickingArea ? "请在屏幕上拖拽…" : area ? "重新框选" : "开始框选"}
+                </Button>
               </div>
-            )}
-          </Card>
+            </>
+          )}
 
-          <Card title="本次录制">
-            <Row label="名称" hint="留空则默认叫「录屏」">
-              <input className="text" placeholder="例如：第 12 讲 · 财报怎么读"
-                value={name} onChange={(e) => setName(e.target.value)} />
-            </Row>
-          </Card>
+          {captureMode === "window" && (
+            <div className="panel-row col">
+              <span className="panel-row-label">目标窗口</span>
+              {windows.length === 0 ? (
+                <span className="muted small">没找到可录制的窗口，确认目标应用没有最小化</span>
+              ) : (
+                <select className="panel-select wide" value={windowId ?? ""}
+                  onChange={(e) => setWindowId(Number(e.target.value))}>
+                  <option value="" disabled>选一个窗口…</option>
+                  {windows.map((w) => (
+                    <option key={w.id} value={w.id}>{w.app} · {w.title}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
 
-          <div className="footer-bar">
-            <Button kind="primary" onClick={start} disabled={busy || !displays.length}>
-              开始录制
-            </Button>
-            <span className="muted small">这一页的设置会自动保存，下次打开沿用</span>
+          <div className="panel-divider" />
+
+          <div className="panel-row">
+            <span className="panel-row-label">
+              声音
+              <Tip text="录制内核一次只能录一路声音，所以麦克风和系统声音是三选一，不能同时开。想要「边讲解边录电脑声音」得后期把两条轨道合起来。" />
+            </span>
+            <select className="panel-select" value={settings.audioSource}
+              onChange={(e) => patch({ audioSource: e.target.value as Settings["audioSource"] })}>
+              <option value="mic">麦克风讲解</option>
+              <option value="system">系统声音</option>
+              <option value="none">不录声音</option>
+            </select>
+          </div>
+
+          <div className="panel-row">
+            <span className="panel-row-label">
+              自动放大
+              <Tip text={ZOOM_TRIGGERS.find((z) => z.value === settings.zoom.trigger)?.desc ?? ""} />
+            </span>
+            <select className="panel-select" value={settings.zoom.trigger}
+              onChange={(e) => patchZoom({ trigger: e.target.value as Settings["zoom"]["trigger"] })}>
+              {ZOOM_TRIGGERS.map((z) => (
+                <option key={z.value} value={z.value}>{z.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="panel-row">
+            <span className="panel-row-label">本次名称</span>
+            <input className="text" placeholder="留空叫「录屏」"
+              value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+
+          <button className="start-btn" onClick={start} disabled={busy || !displays.length}>
+            <i />开始录制
+          </button>
+
+          <div className="panel-foot">
+            存到 {settings.saveDir.split("/").slice(-2).join(" / ")}
+            <button className="linkish" onClick={() => api.openSettings("general")}>更改</button>
           </div>
         </>
       )}

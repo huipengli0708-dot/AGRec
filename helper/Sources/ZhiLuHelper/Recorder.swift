@@ -62,6 +62,11 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
     private var stillSince: Double = 0
     private var autoZoomUntil: Double = -1
     private var prevDown = false
+    /// AGRec 自己那些窗口所属的进程号。用来判断一次点击是不是点在悬浮控制条上。
+    private var ownAppPIDs: Set<pid_t> = []
+    /// 当前这一次按下是不是落在自己窗口上。按下那一刻判定一次，整个按住期间沿用，
+    /// 松手才清掉——不然 120Hz 的循环里每帧都去查一次窗口列表，太贵。
+    private var pressOnOwnWindow = false
 
     // 麦克风
     private var captureSession: AVCaptureSession?
@@ -87,6 +92,8 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
                 || app.applicationName.lowercased().contains("zhilu")
                 || app.applicationName.lowercased().contains("agrec")
         }
+
+        ownAppPIDs = Set(ownApps.map { $0.processID })
 
         let filter: SCContentFilter
         var outW = 0, outH = 0
@@ -388,10 +395,18 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
 
             let clicked = down && !self.prevDown
             self.prevDown = down
+            // 点在悬浮控制条上的那一下是在操作软件（暂停/结束），不是在讲解画面。
+            // 悬浮条本身已经被排除在录制画面之外，但鼠标状态是全局轮询来的，
+            // 不排掉的话：点击类模式下按一次暂停，成片里就会多出一次莫名其妙的放大，
+            // 而且还会在什么都没有的位置画一圈点击水波纹。
+            if clicked { self.pressOnOwnWindow = self.pointOnOwnWindow(loc) }
+            if !down { self.pressOnOwnWindow = false }
+            let realClick = clicked && !self.pressOnOwnWindow
+            let realDown = down && !self.pressOnOwnWindow
 
             if self.req.trigger == "manual" { self.pollManualHotkeys() }
 
-            if clicked {
+            if realClick {
                 switch self.req.trigger {
                 case "clickToggle":
                     // 点一下放大，再点一下缩回
@@ -409,11 +424,31 @@ final class Recorder: NSObject, SCStreamOutput, SCStreamDelegate {
                 t: t,
                 x: loc.x - self.track.originX,
                 y: loc.y - self.track.originY,
-                down: down,
+                down: realDown,
                 z: self.currentManualZoom()))
         }
         timer.resume()
         mouseTimer = timer
+    }
+
+    /// 这个点是不是落在 AGRec 自己的某个窗口上（实际上就是悬浮控制条）。
+    /// 只在真正发生点击的那一帧调用——点击很稀疏，查一次窗口列表的开销无所谓。
+    /// 用实时的窗口列表而不是录制开始时记下的固定位置，是因为悬浮条可以被拖动。
+    private func pointOnOwnWindow(_ p: CGPoint) -> Bool {
+        guard !ownAppPIDs.isEmpty else { return false }
+        guard let list = CGWindowListCopyWindowInfo(
+            [.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]
+        else { return false }
+
+        for w in list {
+            guard let owner = w[kCGWindowOwnerPID as String] as? pid_t,
+                  ownAppPIDs.contains(owner),
+                  let bounds = w[kCGWindowBounds as String] as? NSDictionary,
+                  let rect = CGRect(dictionaryRepresentation: bounds as CFDictionary)
+            else { continue }
+            if rect.contains(p) { return true }
+        }
+        return false
     }
 
     // MARK: - 实时预览（悬浮控制条用，不影响最终录制画质）
