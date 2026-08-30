@@ -60,6 +60,25 @@ export default function RecordPage({ settings, onSettings }: Props) {
     return () => { un.then((f) => f()); };
   }, []);
 
+  // 录制可能不是从这一页结束的——悬浮条上的「结束」也能停。
+  // 编辑器搬成独立窗口之后，这一页不会再被整页替换掉了，
+  // 所以必须自己听一下结束事件，否则会一直停在「正在录制」的界面上，
+  // 再点「结束录制」就报「当前没有正在进行的录制」。
+  useEffect(() => {
+    const un = listen("recording-finished", () => setRecording(false));
+    return () => { un.then((f) => f()); };
+  }, []);
+
+  // 兜底：万一录制内核自己挂了、或者哪条退出路径没发事件，
+  // 界面也不该永远卡在「正在录制」上。慢速轮询一下真实状态。
+  useEffect(() => {
+    if (!recording) return;
+    const t = window.setInterval(() => {
+      api.isRecording().then((on) => { if (!on) setRecording(false); }).catch(() => {});
+    }, 2000);
+    return () => window.clearInterval(t);
+  }, [recording]);
+
   useEffect(() => {
     if (recording) {
       const t0 = Date.now();

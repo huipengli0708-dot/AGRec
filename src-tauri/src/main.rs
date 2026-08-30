@@ -272,6 +272,10 @@ fn ensure_hud(app: &tauri::AppHandle) -> Result<tauri::WebviewWindow, String> {
         .transparent(true)
         .always_on_top(true)
         .visible(false)
+        // 录制时主窗口是藏起来的，AGRec 通常不是当前活跃的 App。
+        // macOS 默认会把「点击非活跃窗口」的第一下只用来激活窗口、不传给页面，
+        // 于是结束录制要点两下才生效。这个开关让第一下就直接落到按钮上。
+        .accept_first_mouse(true)
         .build()
         .map_err(|e| format!("无法创建悬浮控制条窗口：{e}"))
 }
@@ -288,6 +292,7 @@ fn ensure_picker(app: &tauri::AppHandle) -> Result<tauri::WebviewWindow, String>
         .transparent(true)
         .always_on_top(true)
         .visible(false)
+        .accept_first_mouse(true)
         .build()
         .map_err(|e| format!("无法创建选区窗口：{e}"))
 }
