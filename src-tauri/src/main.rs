@@ -127,15 +127,35 @@ fn save_settings(
 
 /// 设置窗口。它没写在 tauri.conf.json 里，是第一次点齿轮时才建出来的，
 /// 关掉就销毁，下次再点重新建——设置页没有需要跨次保留的临时状态。
+///
+/// `section` 是要直接跳到的分组。窗口已经开着和还没开着要走两条不同的路子：
+/// 已经开着就发事件让它切分组；还没开着只能把分组写进 URL，
+/// 因为这时候页面还没挂载，事件发出去没人接。
 #[tauri::command]
-fn open_settings(app: tauri::AppHandle) -> Result<(), String> {
+fn open_settings(app: tauri::AppHandle, section: Option<String>) -> Result<(), String> {
+    // 白名单校验：section 会被拼进 URL，不能直接把前端传来的字符串放进去
+    let section = section.filter(|s| {
+        matches!(
+            s.as_str(),
+            "general" | "quality" | "zoom" | "cursor" | "hud" | "about"
+        )
+    });
+
     if let Some(w) = app.get_webview_window("settings") {
         let _ = w.show();
         let _ = w.unminimize();
         let _ = w.set_focus();
+        if let Some(sec) = section {
+            let _ = app.emit_to("settings", "settings-goto", sec);
+        }
         return Ok(());
     }
-    let w = WebviewWindowBuilder::new(&app, "settings", WebviewUrl::App("index.html".into()))
+
+    let url = match &section {
+        Some(sec) => format!("index.html?section={sec}"),
+        None => "index.html".to_string(),
+    };
+    let w = WebviewWindowBuilder::new(&app, "settings", WebviewUrl::App(url.into()))
         .title("AGRec · 设置")
         .inner_size(900.0, 640.0)
         .min_inner_size(760.0, 540.0)

@@ -1,8 +1,8 @@
-import { useState } from "react";
+
 import { open } from "@tauri-apps/plugin-dialog";
 import {
   api, BUILD_INFO, CURSOR_KINDS, RESOLUTIONS, ZOOM_TRIGGERS,
-  type HudStyle, type Settings,
+  type HudStyle, type Settings, type SettingsSection,
 } from "../lib/api";
 import { Button, Card, HotkeyField, Row, Segmented, Slider, Tip, Toggle } from "../components/UI";
 import { CursorGlyph } from "../components/CursorGlyph";
@@ -11,11 +11,12 @@ import UpdateButton from "../components/UpdateButton";
 type Props = {
   settings: Settings;
   onSettings: (s: Settings) => void;
+  /** 分组由窗口那层持有：点齿轮时可以带着「要跳到哪一组」进来 */
+  section: SettingsSection;
+  onSection: (s: SettingsSection) => void;
 };
 
-type SectionKey = "general" | "quality" | "zoom" | "cursor" | "hud" | "about";
-
-const SECTIONS: { key: SectionKey; label: string }[] = [
+export const SECTIONS: { key: SettingsSection; label: string }[] = [
   { key: "general", label: "通用" },
   { key: "quality", label: "画质与导出" },
   { key: "zoom", label: "放大与快捷键" },
@@ -43,9 +44,7 @@ function HudSample({ style }: { style: HudStyle }) {
   );
 }
 
-export default function SettingsPage({ settings, onSettings }: Props) {
-  const [section, setSection] = useState<SectionKey>("general");
-
+export default function SettingsPage({ settings, onSettings, section, onSection }: Props) {
   const patch = (p: Partial<Settings>) => onSettings({ ...settings, ...p });
   const patchCursor = (p: Partial<Settings["cursor"]>) =>
     onSettings({ ...settings, cursor: { ...settings.cursor, ...p } });
@@ -66,7 +65,7 @@ export default function SettingsPage({ settings, onSettings }: Props) {
         {SECTIONS.map((s) => (
           <button key={s.key}
             className={section === s.key ? "on" : ""}
-            onClick={() => setSection(s.key)}>
+            onClick={() => onSection(s.key)}>
             {s.label}
           </button>
         ))}
@@ -126,11 +125,24 @@ export default function SettingsPage({ settings, onSettings }: Props) {
         )}
 
         {section === "zoom" && (
-          <Card title="放大参数" desc="放大方式在录制面板上选，这里调的是选中那种方式的具体手感">
-            <div className="settings-note">
-              当前放大方式：<b>{trigger?.label ?? "不放大"}</b>
-              {settings.zoom.trigger === "none" && "，下面的参数暂时用不上"}
+          <Card title="放大方式与参数" desc="这里选哪种，下面就调哪种的参数；改了也会同步到录制面板上">
+            <div className="cursor-grid">
+              {ZOOM_TRIGGERS.map((z) => (
+                <button key={z.value}
+                  className={`cursor-card trigger-card ${settings.zoom.trigger === z.value ? "on" : ""}`}
+                  onClick={() => patchZoom({ trigger: z.value })}>
+                  <span className="trigger-card-title">
+                    <b>{z.label}</b>
+                    <Tip text={z.desc} />
+                  </span>
+                </button>
+              ))}
             </div>
+            {settings.zoom.trigger === "none" && (
+              <div className="settings-note">
+                「{trigger?.label}」不需要参数。想调别的方式，点上面对应的那一项就行。
+              </div>
+            )}
 
             {settings.zoom.trigger === "manual" && (
               <div className="hint-box">

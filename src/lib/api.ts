@@ -18,6 +18,9 @@ export type AreaRect = { x: number; y: number; width: number; height: number };
 export type CaptureMode = "display" | "area" | "window";
 /** preview = 带实时预览的控制条；minimal = 只有圆点、计时和三个按钮 */
 export type HudStyle = "preview" | "minimal";
+/** 设置窗口的分组，点齿轮或页面里的指路链接时可以直接跳到某一组 */
+export type SettingsSection =
+  | "general" | "quality" | "zoom" | "cursor" | "hud" | "about";
 
 export type CursorKind = "arrow" | "arrowLight" | "dot" | "ring" | "halo" | "none";
 
@@ -144,7 +147,7 @@ export const api = {
     invoke<AreaRect>("pick_area", { x, y, width, height }),
   loadSettings: () => invoke<Settings>("load_settings"),
   saveSettings: (settings: Settings) => invoke<void>("save_settings", { settings }),
-  openSettings: () => invoke<void>("open_settings"),
+  openSettings: (section?: SettingsSection) => invoke<void>("open_settings", { section }),
   startRecording: (config: RecordConfig) => invoke<string>("start_recording", { config }),
   pauseRecording: () => invoke<void>("pause_recording"),
   resumeRecording: () => invoke<void>("resume_recording"),

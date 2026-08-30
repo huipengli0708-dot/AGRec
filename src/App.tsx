@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
-import { api, BUILD_INFO, type Project, type Settings } from "./lib/api";
+import { api, BUILD_INFO, type Project, type Settings, type SettingsSection } from "./lib/api";
 import RecordPage from "./pages/RecordPage";
 import EditorPage from "./pages/EditorPage";
 import LibraryPage from "./pages/LibraryPage";
@@ -34,10 +34,20 @@ export default function App() {
  *  后保存的会把先保存的整个覆盖掉。 */
 function SettingsWindow() {
   const [settings, setSettings] = useState<Settings | null>(null);
+  // 窗口是新建出来的时候，要跳的分组只能从 URL 上拿——那会儿页面还没挂载，
+  // Rust 发的事件没人接得住。窗口已经开着的情况才走事件。
+  const [section, setSection] = useState<SettingsSection>(() => {
+    const s = new URLSearchParams(window.location.search).get("section");
+    return (s as SettingsSection) || "general";
+  });
 
   useEffect(() => { api.loadSettings().then(setSettings); }, []);
   useEffect(() => {
     const un = listen("settings-changed", () => { api.loadSettings().then(setSettings); });
+    return () => { un.then((f) => f()); };
+  }, []);
+  useEffect(() => {
+    const un = listen<SettingsSection>("settings-goto", (e) => setSection(e.payload));
     return () => { un.then((f) => f()); };
   }, []);
 
@@ -47,6 +57,8 @@ function SettingsWindow() {
     <SettingsPage
       settings={settings}
       onSettings={(s) => { setSettings(s); api.saveSettings(s).catch(() => {}); }}
+      section={section}
+      onSection={setSection}
     />
   );
 }

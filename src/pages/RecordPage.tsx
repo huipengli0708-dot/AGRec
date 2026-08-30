@@ -272,7 +272,7 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
                 倍数、缓入缓出
                 {settings.zoom.trigger === "manual" && "、录制中用哪几个键"}
                 这些参数在
-                <button className="linkish" onClick={() => api.openSettings()}>设置 · 放大与快捷键</button>
+                <button className="linkish" onClick={() => api.openSettings("zoom")}>设置 · 放大与快捷键</button>
                 里调。
               </div>
             )}
