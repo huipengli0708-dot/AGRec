@@ -4,7 +4,7 @@ import { listen } from "@tauri-apps/api/event";
 import {
   api, CURSOR_KINDS, RESOLUTIONS, ZOOM_TRIGGERS,
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
-  type Project, type Settings, type WindowInfo,
+  type HudStyle, type Project, type Settings, type WindowInfo,
 } from "../lib/api";
 import { Button, Card, HotkeyField, Row, Segmented, Slider, Tip, Toggle, formatTime } from "../components/UI";
 import { CursorGlyph } from "../components/CursorGlyph";
@@ -14,6 +14,25 @@ type Props = {
   onSettings: (s: Settings) => void;
   onRecorded: (p: Project) => void;
 };
+
+/** 悬浮控制条的样式示意图。纯静态，不联动真实录制状态，
+ *  只是让人在切换之前能看见这个样式大概长什么样。 */
+function HudSample({ style }: { style: HudStyle }) {
+  const minimal = style === "minimal";
+  return (
+    <div className="hud-sample">
+      {!minimal && <div className="hud-sample-screen">实时画面</div>}
+      <div className="hud-sample-bar">
+        <span className="hud-sample-dot" />
+        <span className="hud-sample-time">00:12</span>
+        {!minimal && <span className="hud-sample-scale">1.00×</span>}
+        {!minimal && <span className="hud-sample-btn ghost">▴</span>}
+        <span className="hud-sample-btn">❚❚</span>
+        <span className="hud-sample-btn stop">■</span>
+      </div>
+    </div>
+  );
+}
 
 export default function RecordPage({ settings, onSettings, onRecorded }: Props) {
   const [env, setEnv] = useState<EnvStatus | null>(null);
@@ -307,12 +326,13 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
               <Segmented
                 value={settings.hudStyle ?? "preview"}
                 options={[
-                  { value: "preview", label: "带画面预览" },
+                  { value: "preview", label: "画面预览" },
                   { value: "minimal", label: "极简圆点" },
                 ]}
                 onChange={(v) => patch({ hudStyle: v })}
               />
             </Row>
+            <HudSample style={settings.hudStyle ?? "preview"} />
           </Card>
 
           <Card title="鼠标样式" desc="录制时不录系统指针，导出时用你选的样式重绘，放大后依然清晰">

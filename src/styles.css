@@ -270,6 +270,36 @@ html.hud-root, body.hud-root {
 .hud-btn.stop { background: rgba(255,90,90,.16); border-color: rgba(255,90,90,.4); color: var(--danger); }
 .hud-btn:disabled { opacity: .5; }
 
+/* ---------- 悬浮控制条样式示意图（录制页里的静态预览，不是真的悬浮条） ---------- */
+.hud-sample {
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  padding: 16px; margin-top: 2px;
+  background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+}
+.hud-sample-screen {
+  width: 190px; aspect-ratio: 16 / 10; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.14); background: #000;
+  display: grid; place-items: center; color: var(--muted); font-size: 11px;
+}
+.hud-sample-bar {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(23,26,32,.94); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px; padding: 6px 11px; box-shadow: 0 6px 18px rgba(0,0,0,.45);
+}
+.hud-sample-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); flex: none; }
+.hud-sample-time { font-variant-numeric: tabular-nums; font-size: 12px; }
+.hud-sample-scale {
+  font-size: 10.5px; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 20px; padding: 1px 7px; flex: none;
+}
+.hud-sample-btn {
+  width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text); font-size: 9px;
+  display: grid; place-items: center; flex: none;
+}
+.hud-sample-btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.hud-sample-btn.stop { background: rgba(255,90,90,.16); border-color: rgba(255,90,90,.4); color: var(--danger); }
+
 /* ---------- 选区拾取遮罩（picker 窗口） ---------- */
 .picker-overlay {
   position: fixed; inset: 0; background: rgba(10,12,16,.35);
