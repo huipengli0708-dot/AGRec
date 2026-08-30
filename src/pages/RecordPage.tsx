@@ -18,11 +18,18 @@ type Props = {
 export default function RecordPage({ settings, onSettings, onRecorded }: Props) {
   const [env, setEnv] = useState<EnvStatus | null>(null);
   const [displays, setDisplays] = useState<DisplayInfo[]>([]);
-  const [displayId, setDisplayId] = useState<number>(0);
   const [windows, setWindows] = useState<WindowInfo[]>([]);
   const [windowId, setWindowId] = useState<number | null>(null);
-  const [captureMode, setCaptureMode] = useState<CaptureMode>("display");
-  const [area, setArea] = useState<AreaRect | null>(null);
+
+  // 录制范围、显示器、选区直接存在 settings 里，重开软件后保持上次的选择。
+  // 窗口 id 不存——它每次开机都会变，存下来只会指向一个已经不存在的窗口。
+  const captureMode: CaptureMode = settings.captureMode ?? "display";
+  const displayId = settings.displayId ?? 0;
+  const area = settings.area ?? null;
+  const setCaptureMode = (v: CaptureMode) =>
+    onSettings({ ...settings, captureMode: v, area: v === "area" ? settings.area : null });
+  const setDisplayId = (v: number) => onSettings({ ...settings, displayId: v });
+  const setArea = (v: AreaRect | null) => onSettings({ ...settings, area: v });
   const [pickingArea, setPickingArea] = useState(false);
   const [name, setName] = useState("");
   const [recording, setRecording] = useState(false);
@@ -35,8 +42,12 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
     api.checkEnv().then(setEnv);
     api.listDisplays().then((d) => {
       setDisplays(d);
-      const main = d.find((x) => x.isMain) ?? d[0];
-      if (main) setDisplayId(main.id);
+      // 上次记住的显示器如果还接着，就沿用；拔掉了就退回主显示器，
+      // 不然会卡在一个已经不存在的显示器 id 上，怎么点都录不出来。
+      if (!d.some((x) => x.id === settings.displayId)) {
+        const main = d.find((x) => x.isMain) ?? d[0];
+        if (main) setDisplayId(main.id);
+      }
     }).catch((e) => setError(String(e)));
   }, []);
 
@@ -44,7 +55,6 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
     if (captureMode === "window" && windows.length === 0) {
       api.listWindows().then(setWindows).catch((e) => setError(String(e)));
     }
-    if (captureMode !== "area") setArea(null);
   }, [captureMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -192,7 +202,7 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
                   <Segmented
                     value={displayId}
                     options={displays.map((d) => ({ value: d.id, label: d.name }))}
-                    onChange={(v) => { setDisplayId(v); setArea(null); }}
+                    onChange={(v) => onSettings({ ...settings, displayId: v, area: null })}
                   />
                 </Row>
                 <Row label="选区">
@@ -415,6 +425,7 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
             <Button kind="primary" onClick={start} disabled={busy || !displays.length}>
               开始录制
             </Button>
+            <span className="muted small">这一页的设置会自动保存，下次打开沿用</span>
           </div>
         </>
       )}

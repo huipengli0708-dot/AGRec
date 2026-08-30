@@ -255,6 +255,22 @@ pub struct Settings {
     pub audio_source: String,
     pub cursor: CursorStyle,
     pub zoom: ZoomParams,
+
+    // 下面三个是「上次录的是什么范围」。以前它们只活在页面里，
+    // 每次重开软件都要重新选一遍整屏/选区/窗口和显示器。
+    // 都带 serde default：老的 settings.json 里没有这几个字段，
+    // 少了 default 整个文件会反序列化失败，用户的其它设置会被一起清空。
+    /// display | area | window
+    #[serde(rename = "captureMode", default = "default_capture_mode")]
+    pub capture_mode: String,
+    #[serde(rename = "displayId", default)]
+    pub display_id: Option<u32>,
+    #[serde(default)]
+    pub area: Option<AreaRect>,
+}
+
+fn default_capture_mode() -> String {
+    "display".into()
 }
 
 impl Settings {
@@ -269,6 +285,9 @@ impl Settings {
             audio_source: "mic".into(),
             cursor: CursorStyle::default(),
             zoom: ZoomParams::default(),
+            capture_mode: default_capture_mode(),
+            display_id: None,
+            area: None,
         }
     }
 }

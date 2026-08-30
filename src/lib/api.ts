@@ -124,6 +124,10 @@ export type Settings = {
   audioSource: "none" | "system" | "mic";
   cursor: CursorStyle;
   zoom: ZoomParams;
+  // 上次选的录制范围，重开软件后照旧
+  captureMode: CaptureMode;
+  displayId?: number | null;
+  area?: AreaRect | null;
 };
 
 export type EnvStatus = { helper: boolean; screen: boolean; microphone: boolean; message: string };

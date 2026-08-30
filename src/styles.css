@@ -131,7 +131,8 @@ body {
 
 .footer-bar {
   position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 26px;
-  background: linear-gradient(transparent, var(--bg) 40%); display: flex; justify-content: center;
+  background: linear-gradient(transparent, var(--bg) 40%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 
 /* ---------- 鼠标样式选择 ---------- */
