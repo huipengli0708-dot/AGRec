@@ -1,38 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import {
-  api, CURSOR_KINDS, RESOLUTIONS, ZOOM_TRIGGERS,
+  api, ZOOM_TRIGGERS,
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
-  type HudStyle, type Project, type Settings, type WindowInfo,
+  type Project, type Settings, type WindowInfo,
 } from "../lib/api";
-import { Button, Card, HotkeyField, Row, Segmented, Slider, Tip, Toggle, formatTime } from "../components/UI";
-import { CursorGlyph } from "../components/CursorGlyph";
+import { Button, Card, Row, Segmented, Tip, formatTime } from "../components/UI";
 
 type Props = {
   settings: Settings;
   onSettings: (s: Settings) => void;
   onRecorded: (p: Project) => void;
 };
-
-/** 悬浮控制条的样式示意图。纯静态，不联动真实录制状态，
- *  只是让人在切换之前能看见这个样式大概长什么样。 */
-function HudSample({ style }: { style: HudStyle }) {
-  const minimal = style === "minimal";
-  return (
-    <div className="hud-sample">
-      {!minimal && <div className="hud-sample-screen">实时画面</div>}
-      <div className="hud-sample-bar">
-        <span className="hud-sample-dot" />
-        <span className="hud-sample-time">00:12</span>
-        {!minimal && <span className="hud-sample-scale">1.00×</span>}
-        {!minimal && <span className="hud-sample-btn ghost">▴</span>}
-        <span className="hud-sample-btn">❚❚</span>
-        <span className="hud-sample-btn stop">■</span>
-      </div>
-    </div>
-  );
-}
 
 export default function RecordPage({ settings, onSettings, onRecorded }: Props) {
   const [env, setEnv] = useState<EnvStatus | null>(null);
@@ -100,10 +79,6 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
   const patchZoom = (p: Partial<Settings["zoom"]>) =>
     onSettings({ ...settings, zoom: { ...settings.zoom, ...p } });
 
-  async function pickDir() {
-    const dir = await open({ directory: true, multiple: false, title: "选择视频保存位置" });
-    if (typeof dir === "string") patch({ saveDir: dir });
-  }
 
   async function pickArea() {
     const d = displays.find((x) => x.id === displayId) ?? displays[0];
@@ -164,7 +139,6 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
     }
   }
 
-  const res = RESOLUTIONS.find((r) => r.height === settings.defaultHeight) ?? RESOLUTIONS[1];
 
   return (
     <div className="page">
@@ -258,123 +232,25 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
             )}
           </Card>
 
-          <Card title="画质" desc="按显示器 / 选区 / 窗口的原始比例输出，高度对齐所选档位">
-            <Row label="清晰度">
-              <Segmented
-                value={settings.defaultHeight}
-                options={RESOLUTIONS.map((r) => ({ value: r.height, label: r.label }))}
-                onChange={(h) => {
-                  const r = RESOLUTIONS.find((x) => x.height === h)!;
-                  patch({ defaultHeight: h, defaultBitrate: r.bitrate });
-                }}
-              />
-            </Row>
-            <Row label="帧率">
-              <Segmented
-                value={settings.defaultFps}
-                options={[
-                  { value: 30, label: "30 fps" },
-                  { value: 60, label: "60 fps" },
-                ]}
-                onChange={(v) => patch({ defaultFps: v })}
-              />
-            </Row>
-            <Row label="编码" hint="HEVC 同画质体积更小；H.264 兼容性最好">
-              <Segmented
-                value={settings.defaultCodec}
-                options={[
-                  { value: "hevc", label: "HEVC / H.265" },
-                  { value: "h264", label: "H.264" },
-                ]}
-                onChange={(v) => patch({ defaultCodec: v })}
-              />
-            </Row>
-            <Row label="码率" hint={`${res.label} 推荐 ${res.bitrate} Mbps`}>
-              <Slider value={settings.defaultBitrate} min={8} max={160} step={2}
-                onChange={(v) => patch({ defaultBitrate: v })}
-                format={(v) => `${v} Mbps`} />
-            </Row>
-            <Row label="声音">
+
+
+
+
+
+
+
+
+          <Card title="声音" desc="麦克风录你的讲解；系统声音录电脑本身发出的声音（视频、音乐、提示音）">
+            <Row label="录什么声音">
               <Segmented
                 value={settings.audioSource}
                 options={[
                   { value: "mic", label: "麦克风讲解" },
-                  { value: "system", label: "系统内录" },
+                  { value: "system", label: "系统声音" },
                   { value: "none", label: "不录声音" },
                 ]}
                 onChange={(v) => patch({ audioSource: v })}
               />
-            </Row>
-          </Card>
-
-          <Card title="保存位置" desc="每次录制会在这里新建一个项目文件夹">
-            <Row label="文件夹">
-              <div className="path-row">
-                <input className="text" value={settings.saveDir}
-                  onChange={(e) => patch({ saveDir: e.target.value })} />
-                <Button onClick={pickDir}>选择…</Button>
-              </div>
-            </Row>
-            <Row label="本次名称" hint="留空则默认叫「录屏」">
-              <input className="text" placeholder="例如：第 12 讲 · 财报怎么读"
-                value={name} onChange={(e) => setName(e.target.value)} />
-            </Row>
-          </Card>
-
-          <Card title="悬浮控制条" desc="录制时停在屏幕顶部的那个小条。它已经被排除在录制画面之外，不会被录进视频">
-            <Row label="样式">
-              <Segmented
-                value={settings.hudStyle ?? "preview"}
-                options={[
-                  { value: "preview", label: "画面预览" },
-                  { value: "minimal", label: "极简圆点" },
-                ]}
-                onChange={(v) => patch({ hudStyle: v })}
-              />
-            </Row>
-            <HudSample style={settings.hudStyle ?? "preview"} />
-          </Card>
-
-          <Card title="鼠标样式" desc="录制时不录系统指针，导出时用你选的样式重绘，放大后依然清晰">
-            <div className="cursor-grid">
-              {CURSOR_KINDS.map((c) => (
-                <button key={c.value}
-                  className={`cursor-card ${settings.cursor.kind === c.value ? "on" : ""}`}
-                  onClick={() => patchCursor({ kind: c.value })}>
-                  <div className="preview">
-                    <CursorGlyph kind={c.value} color={settings.cursor.color}
-                      outlineColor={settings.cursor.outlineColor} size={44} />
-                  </div>
-                  <b>{c.label}</b>
-                  <em>{c.desc}</em>
-                </button>
-              ))}
-            </div>
-            <Row label="指针大小">
-              <Slider value={settings.cursor.size} min={0.8} max={3} step={0.1}
-                onChange={(v) => patchCursor({ size: v })}
-                format={(v) => `${v.toFixed(1)}×`} />
-            </Row>
-            <Row label="主色 / 描边">
-              <div className="colors">
-                <input type="color" value={settings.cursor.color}
-                  onChange={(e) => patchCursor({ color: e.target.value })} />
-                <input type="color" value={settings.cursor.outlineColor}
-                  onChange={(e) => patchCursor({ outlineColor: e.target.value })} />
-              </div>
-            </Row>
-            <Row label="点击水波纹" hint="点击时出现扩散圆环，观众更容易注意到">
-              <Toggle value={settings.cursor.clickRipple}
-                onChange={(v) => patchCursor({ clickRipple: v })} />
-            </Row>
-            <Row label="指针跟手程度" hint="越低越平滑，越高越贴近真实轨迹">
-              <Slider value={settings.cursor.smoothing} min={0.1} max={1} step={0.05}
-                onChange={(v) => patchCursor({ smoothing: v })}
-                format={(v) => `${Math.round(v * 100)}%`} />
-            </Row>
-            <Row label="放大时指针跟着变大">
-              <Toggle value={settings.cursor.scaleWithZoom}
-                onChange={(v) => patchCursor({ scaleWithZoom: v })} />
             </Row>
           </Card>
 
@@ -391,67 +267,22 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
                 </button>
               ))}
             </div>
-
-            {settings.zoom.trigger === "manual" && (
-              <div className="hint-box">
-                <b>录制中的快捷键</b>{" "}
-                <Tip text="键不对、换了外接键盘识别不到？点“点击设置”，自己在键盘上按一下想用的键就行，采集的是这把键盘实际上报的按键，跟型号、布局无关。两个手势看的是按下缩小键那一刻前置键在不在，跟按住多久无关。注意：录制中在输入框里打字，如果打到跟“缩小键”一样的字母会被当成归位，建议挑一个平时打字不常用的键。不做操作时倍数一直保持，画面持续跟随鼠标移动，只影响录出来的视频，不影响你自己看到的屏幕。" />
-                <div className="hotkey-row">
-                  前置键 <HotkeyField value={settings.zoom.hotkeyA}
-                    onChange={(v) => patchZoom({ hotkeyA: v })} /> +
-                  放大键 <HotkeyField value={settings.zoom.hotkeyZ}
-                    onChange={(v) => patchZoom({ hotkeyZ: v })} /> — 持续放大，松开停在当前倍数
-                </div>
-                <div className="hotkey-row">
-                  前置键 <HotkeyField value={settings.zoom.hotkeyA}
-                    onChange={(v) => patchZoom({ hotkeyA: v })} /> +
-                  缩小键 <HotkeyField value={settings.zoom.hotkeyX}
-                    onChange={(v) => patchZoom({ hotkeyX: v })} /> — 缓慢缩小，松开停在当前倍数
-                </div>
-                <div>单独按一下缩小键（不按前置键）— 一步归位到 1.00×</div>
+            {settings.zoom.trigger !== "none" && (
+              <div className="settings-note">
+                倍数、缓入缓出
+                {settings.zoom.trigger === "manual" && "、录制中用哪几个键"}
+                这些参数在
+                <button className="linkish" onClick={() => api.openSettings()}>设置 · 放大与快捷键</button>
+                里调。
               </div>
             )}
+          </Card>
 
-            {settings.zoom.trigger !== "none" && (
-              <>
-                <Row label="放大倍数" hint={settings.zoom.trigger === "manual" ? "手动模式下这是起始倍数" : undefined}>
-                  <Slider value={settings.zoom.scale} min={1.2} max={3} step={0.1}
-                    onChange={(v) => patchZoom({ scale: v })} format={(v) => `${v.toFixed(1)}×`} />
-                </Row>
-                <Row label="缓入时长" hint="二次方缓出，越长越柔和">
-                  <Slider value={settings.zoom.zoomIn} min={0.2} max={2.5} step={0.1}
-                    onChange={(v) => patchZoom({ zoomIn: v })} format={(v) => `${v.toFixed(1)} 秒`} />
-                </Row>
-                <Row label="缓出时长">
-                  <Slider value={settings.zoom.zoomOut} min={0.2} max={2.5} step={0.1}
-                    onChange={(v) => patchZoom({ zoomOut: v })} format={(v) => `${v.toFixed(1)} 秒`} />
-                </Row>
-              </>
-            )}
-
-            {(settings.zoom.trigger === "dwell" || settings.zoom.trigger === "click") && (
-              <>
-                <Row label="保持时长" hint="触发后至少放大多久">
-                  <Slider value={settings.zoom.hold} min={0.4} max={6} step={0.2}
-                    onChange={(v) => patchZoom({ hold: v })} format={(v) => `${v.toFixed(1)} 秒`} />
-                </Row>
-                <Row label="放大后跟随鼠标平移" hint="关掉则锁定在触发点">
-                  <Toggle value={settings.zoom.follow} onChange={(v) => patchZoom({ follow: v })} />
-                </Row>
-              </>
-            )}
-
-            {settings.zoom.trigger === "dwell" && (
-              <Row label="停留判定" hint="在多小的范围里停多久算“在讲这里”">
-                <div className="inline">
-                  <Slider value={settings.zoom.dwellTime} min={0.3} max={3} step={0.1}
-                    onChange={(v) => patchZoom({ dwellTime: v })} format={(v) => `${v.toFixed(1)} 秒`} />
-                  <Slider value={settings.zoom.dwellRadius} min={0.01} max={0.15} step={0.005}
-                    onChange={(v) => patchZoom({ dwellRadius: v })}
-                    format={(v) => `${Math.round(v * 100)}% 画面`} />
-                </div>
-              </Row>
-            )}
+          <Card title="本次录制">
+            <Row label="名称" hint="留空则默认叫「录屏」">
+              <input className="text" placeholder="例如：第 12 讲 · 财报怎么读"
+                value={name} onChange={(e) => setName(e.target.value)} />
+            </Row>
           </Card>
 
           <div className="footer-bar">

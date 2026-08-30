@@ -7,6 +7,7 @@ import EditorPage from "./pages/EditorPage";
 import LibraryPage from "./pages/LibraryPage";
 import HudPage from "./pages/HudPage";
 import PickerPage from "./pages/PickerPage";
+import SettingsPage from "./pages/SettingsPage";
 import UpdateButton from "./components/UpdateButton";
 
 type Tab = "record" | "library";
@@ -24,7 +25,30 @@ if (windowLabel === "hud" || windowLabel === "picker") {
 export default function App() {
   if (windowLabel === "hud") return <HudPage />;
   if (windowLabel === "picker") return <PickerPage />;
+  if (windowLabel === "settings") return <SettingsWindow />;
   return <MainApp />;
+}
+
+/** 设置窗口。它和主面板各读各的 settings，靠 Rust 发的 settings-changed
+ *  事件互相通知——谁改了对方就重新读一次，不然两边各握一份旧副本，
+ *  后保存的会把先保存的整个覆盖掉。 */
+function SettingsWindow() {
+  const [settings, setSettings] = useState<Settings | null>(null);
+
+  useEffect(() => { api.loadSettings().then(setSettings); }, []);
+  useEffect(() => {
+    const un = listen("settings-changed", () => { api.loadSettings().then(setSettings); });
+    return () => { un.then((f) => f()); };
+  }, []);
+
+  if (!settings) return <div className="loading">正在读取设置…</div>;
+
+  return (
+    <SettingsPage
+      settings={settings}
+      onSettings={(s) => { setSettings(s); api.saveSettings(s).catch(() => {}); }}
+    />
+  );
 }
 
 function MainApp() {
@@ -36,6 +60,12 @@ function MainApp() {
 
   useEffect(() => {
     const un = listen<Project>("recording-finished", (e) => setProject(e.payload));
+    return () => { un.then((f) => f()); };
+  }, []);
+
+  // 设置窗口里改了什么，这边要跟着重新读一次
+  useEffect(() => {
+    const un = listen("settings-changed", () => { api.loadSettings().then(setSettings); });
     return () => { un.then((f) => f()); };
   }, []);
 
@@ -69,6 +99,13 @@ function MainApp() {
           {!BUILD_INFO.isDev && <UpdateButton />}
           <button className={tab === "record" ? "on" : ""} onClick={() => setTab("record")}>录制</button>
           <button className={tab === "library" ? "on" : ""} onClick={() => setTab("library")}>我的录制</button>
+          <button className="gear" onClick={() => api.openSettings()} title="设置">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
         </nav>
       </header>
       {tab === "record" ? (

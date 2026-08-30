@@ -144,6 +144,7 @@ export const api = {
     invoke<AreaRect>("pick_area", { x, y, width, height }),
   loadSettings: () => invoke<Settings>("load_settings"),
   saveSettings: (settings: Settings) => invoke<void>("save_settings", { settings }),
+  openSettings: () => invoke<void>("open_settings"),
   startRecording: (config: RecordConfig) => invoke<string>("start_recording", { config }),
   pauseRecording: () => invoke<void>("pause_recording"),
   resumeRecording: () => invoke<void>("resume_recording"),

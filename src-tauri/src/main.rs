@@ -103,10 +103,47 @@ fn load_settings(app: tauri::AppHandle) -> Settings {
 }
 
 #[tauri::command]
-fn save_settings(app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
+fn save_settings(
+    app: tauri::AppHandle,
+    window: tauri::Window,
+    settings: Settings,
+) -> Result<(), String> {
     let p = settings_path(&app);
     let text = serde_json::to_string_pretty(&settings).map_err(err)?;
-    std::fs::write(p, text).map_err(err)
+    std::fs::write(p, text).map_err(err)?;
+
+    // 主面板和设置窗口是两个独立窗口，各自在内存里握着一份 settings 副本。
+    // 谁改了都得通知另一边重新读一次：否则另一边下次保存时，
+    // 会拿它手上那份过期副本把对方刚改的整个覆盖掉。
+    // 只发给「不是发起方」的那个窗口，免得自己收到自己的通知白读一次。
+    let src = window.label().to_string();
+    for target in ["main", "settings"] {
+        if target != src {
+            let _ = app.emit_to(target, "settings-changed", ());
+        }
+    }
+    Ok(())
+}
+
+/// 设置窗口。它没写在 tauri.conf.json 里，是第一次点齿轮时才建出来的，
+/// 关掉就销毁，下次再点重新建——设置页没有需要跨次保留的临时状态。
+#[tauri::command]
+fn open_settings(app: tauri::AppHandle) -> Result<(), String> {
+    if let Some(w) = app.get_webview_window("settings") {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+        return Ok(());
+    }
+    let w = WebviewWindowBuilder::new(&app, "settings", WebviewUrl::App("index.html".into()))
+        .title("AGRec · 设置")
+        .inner_size(900.0, 640.0)
+        .min_inner_size(760.0, 540.0)
+        .resizable(true)
+        .build()
+        .map_err(|e| format!("无法打开设置窗口：{e}"))?;
+    let _ = w.set_focus();
+    Ok(())
 }
 
 // ---------------------------------------------------------------- 选区拾取
@@ -663,6 +700,7 @@ fn main() {
             list_windows,
             load_settings,
             save_settings,
+            open_settings,
             pick_area,
             start_recording,
             pause_recording,

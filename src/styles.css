@@ -218,6 +218,40 @@ body {
 .window-item b { display: block; font-size: 12.5px; }
 .window-item em { font-style: normal; font-size: 11px; color: var(--muted); }
 
+/* ---------- 设置窗口（settings 窗口） ---------- */
+.settings-shell { display: grid; grid-template-columns: 168px 1fr; height: 100%; }
+.settings-rail {
+  border-right: 1px solid var(--line); background: var(--panel);
+  padding: 14px 10px; display: flex; flex-direction: column; gap: 2px;
+  overflow-y: auto;
+}
+.settings-rail button {
+  text-align: left; padding: 8px 11px; border-radius: 8px; border: none;
+  background: transparent; color: var(--muted); font-size: 13.5px; cursor: pointer;
+}
+.settings-rail button:hover { color: var(--text); }
+.settings-rail button.on { background: var(--panel-2); color: var(--text); font-weight: 500; }
+.settings-main { overflow-y: auto; padding: 26px 28px 40px; }
+.settings-main .card { max-width: 620px; }
+
+/* 面板和设置之间的指路小字 */
+.settings-note {
+  font-size: 12.5px; color: var(--muted); line-height: 1.7;
+  padding: 9px 12px; background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 8px; margin-top: 10px;
+}
+.settings-note b { color: var(--text); font-weight: 500; }
+.linkish {
+  background: none; border: none; padding: 0 2px; cursor: pointer;
+  color: var(--accent); font: inherit; text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* 标题栏右上角的齿轮 */
+.titlebar nav button.gear {
+  display: grid; place-items: center; padding: 0; width: 30px; height: 28px;
+}
+
 /* ---------- 悬浮控制条（hud 窗口） ---------- */
 html.hud-root, body.hud-root {
   background: transparent !important;
