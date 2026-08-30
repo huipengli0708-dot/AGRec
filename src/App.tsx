@@ -26,7 +26,42 @@ export default function App() {
   if (windowLabel === "hud") return <HudPage />;
   if (windowLabel === "picker") return <PickerPage />;
   if (windowLabel === "settings") return <SettingsWindow />;
+  if (windowLabel === "editor") return <EditorWindow />;
   return <MainApp />;
+}
+
+/** 编辑器窗口。要打开哪个项目有两条来路：窗口是刚建出来的，
+ *  就自己去 Rust 那儿把「待打开的目录」取回来；窗口本来就开着，
+ *  则等 editor-open 事件。两条都要有，少一条就会出现「点了没反应」。 */
+function EditorWindow() {
+  const [project, setProject] = useState<Project | null>(null);
+  const [error, setError] = useState("");
+
+  function load(dir: string) {
+    api.loadProject(dir)
+      .then(setProject)
+      .catch((e) => setError(`打不开这个录制：${e}`));
+  }
+
+  useEffect(() => {
+    api.takeEditorProject().then((dir) => { if (dir) load(dir); }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const un = listen<string>("editor-open", (e) => load(e.payload));
+    return () => { un.then((f) => f()); };
+  }, []);
+
+  if (error) return <div className="loading">{error}</div>;
+  if (!project) return <div className="loading">正在打开录制…</div>;
+
+  return (
+    <EditorPage
+      project={project}
+      onChange={setProject}
+      onBack={() => getCurrentWindow().close()}
+    />
+  );
 }
 
 /** 设置窗口。它和主面板各读各的 settings，靠 Rust 发的 settings-changed
@@ -66,12 +101,16 @@ function SettingsWindow() {
 function MainApp() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [tab, setTab] = useState<Tab>("record");
-  const [project, setProject] = useState<Project | null>(null);
 
   useEffect(() => { api.loadSettings().then(setSettings); }, []);
 
+  // 录完就把编辑器窗口叫起来。停止录制不管是从面板按的还是从悬浮条按的，
+  // 走的都是同一个 Rust 命令、发的都是这个事件，所以这里是唯一的入口，
+  // 不会出现两条路各开一次编辑器。
   useEffect(() => {
-    const un = listen<Project>("recording-finished", (e) => setProject(e.payload));
+    const un = listen<Project>("recording-finished", (e) => {
+      api.openEditor(e.payload.dir).catch(() => {});
+    });
     return () => { un.then((f) => f()); };
   }, []);
 
@@ -87,16 +126,6 @@ function MainApp() {
   }
 
   if (!settings) return <div className="loading">正在启动AGRec…</div>;
-
-  if (project) {
-    return (
-      <EditorPage
-        project={project}
-        onChange={setProject}
-        onBack={() => setProject(null)}
-      />
-    );
-  }
 
   return (
     <div className="shell">
@@ -121,9 +150,9 @@ function MainApp() {
         </nav>
       </header>
       {tab === "record" ? (
-        <RecordPage settings={settings} onSettings={updateSettings} onRecorded={setProject} />
+        <RecordPage settings={settings} onSettings={updateSettings} />
       ) : (
-        <LibraryPage root={settings.saveDir} onOpen={setProject} />
+        <LibraryPage root={settings.saveDir} onOpen={(p) => api.openEditor(p.dir).catch(() => {})} />
       )}
     </div>
   );

@@ -3,17 +3,16 @@ import { listen } from "@tauri-apps/api/event";
 import {
   api, ZOOM_TRIGGERS,
   type AreaRect, type CaptureMode, type DisplayInfo, type EnvStatus,
-  type Project, type Settings, type WindowInfo,
+  type Settings, type WindowInfo,
 } from "../lib/api";
 import { Button, Card, Row, Segmented, Tip, formatTime } from "../components/UI";
 
 type Props = {
   settings: Settings;
   onSettings: (s: Settings) => void;
-  onRecorded: (p: Project) => void;
 };
 
-export default function RecordPage({ settings, onSettings, onRecorded }: Props) {
+export default function RecordPage({ settings, onSettings }: Props) {
   const [env, setEnv] = useState<EnvStatus | null>(null);
   const [displays, setDisplays] = useState<DisplayInfo[]>([]);
   const [windows, setWindows] = useState<WindowInfo[]>([]);
@@ -128,9 +127,11 @@ export default function RecordPage({ settings, onSettings, onRecorded }: Props) 
   async function stop() {
     setBusy(true);
     try {
-      const project = await api.stopRecording();
+      // 编辑器由 App 那层统一在 recording-finished 事件里打开。
+      // 这里不要自己再开一次：悬浮条上的「结束」走的是同一个命令、
+      // 发的是同一个事件，两边都开就会重复触发。
+      await api.stopRecording();
       setRecording(false);
-      onRecorded(project);
     } catch (e) {
       setError(String(e));
       setRecording(false);

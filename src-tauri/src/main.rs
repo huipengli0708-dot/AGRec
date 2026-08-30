@@ -17,6 +17,10 @@ use tauri::{Emitter, Listener, Manager, State, WebviewUrl, WebviewWindowBuilder,
 #[derive(Default)]
 struct AppState {
     recording: Mutex<Option<RecordingSession>>,
+    /// 刚要求打开、但编辑器窗口还没挂载好的项目目录。
+    /// 新建窗口的那一刻页面还不存在，事件发出去没人接，
+    /// 所以先存在这儿，等编辑器起来了自己来取。
+    pending_editor: Mutex<Option<String>>,
 }
 
 struct RecordingSession {
@@ -123,6 +127,42 @@ fn save_settings(
         }
     }
     Ok(())
+}
+
+/// 编辑器窗口。录完自动打开，或者从「我的录制」里点开一个旧项目。
+/// 做成独立窗口是因为它和主面板的尺寸诉求正好相反：
+/// 面板要小要常驻，编辑器要大画布。
+#[tauri::command]
+fn open_editor(app: tauri::AppHandle, state: State<AppState>, dir: String) -> Result<(), String> {
+    if let Ok(mut pending) = state.pending_editor.lock() {
+        *pending = Some(dir.clone());
+    }
+
+    if let Some(w) = app.get_webview_window("editor") {
+        let _ = w.show();
+        let _ = w.unminimize();
+        let _ = w.set_focus();
+        // 窗口已经开着，页面挂载好了，直接告诉它换个项目
+        let _ = app.emit_to("editor", "editor-open", &dir);
+        return Ok(());
+    }
+
+    let w = WebviewWindowBuilder::new(&app, "editor", WebviewUrl::App("index.html".into()))
+        .title("AGRec · 编辑")
+        .inner_size(1280.0, 820.0)
+        .min_inner_size(1000.0, 660.0)
+        .resizable(true)
+        .build()
+        .map_err(|e| format!("无法打开编辑器窗口：{e}"))?;
+    let _ = w.set_focus();
+    Ok(())
+}
+
+/// 编辑器窗口挂载后来取要打开哪个项目。取走就清掉，
+/// 免得下次editor窗口刷新时又把这个旧项目重新打开一遍。
+#[tauri::command]
+fn take_editor_project(state: State<AppState>) -> Option<String> {
+    state.pending_editor.lock().ok().and_then(|mut p| p.take())
 }
 
 /// 设置窗口。它没写在 tauri.conf.json 里，是第一次点齿轮时才建出来的，
@@ -721,6 +761,8 @@ fn main() {
             load_settings,
             save_settings,
             open_settings,
+            open_editor,
+            take_editor_project,
             pick_area,
             start_recording,
             pause_recording,
