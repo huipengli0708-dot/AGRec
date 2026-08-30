@@ -275,10 +275,16 @@ body {
 }
 .opt-row.as-button::after { transform: translateY(-1px) rotate(-45deg); }
 .opt-row:disabled { opacity: .6; cursor: default; }
-/* 原生下拉铺满整行、完全透明：外观是自己画的，菜单行为交给系统 */
+/* 原生下拉铺满整行、完全透明：外观是自己画的，菜单行为交给系统。
+   appearance: none 这行是关键——macOS 上带默认外观（menulist）的 select
+   只在它自己那个约 20px 高的原生控件范围内响应点击，就算 CSS 把它撑到 46px，
+   下面那大半截也是死的，表现出来就是「只有上面一小条能点开」。
+   关掉原生外观之后它才真正按 CSS 的尺寸参与命中测试。 */
 .opt-row select {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  opacity: 0; cursor: pointer; font-family: inherit;
+  appearance: none; -webkit-appearance: none;
+  border: none; padding: 0; margin: 0; background: transparent;
+  opacity: 0; cursor: pointer; font-family: inherit; font-size: 13px;
 }
 
 .start-btn {

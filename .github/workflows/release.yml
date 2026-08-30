@@ -1,0 +1,61 @@
+# 打 tag 就发版。
+#
+# 用法：改完 tauri.conf.json / package.json / Cargo.toml 里的 version 之后
+#   git tag v0.2.0 && git push origin v0.2.0
+# Actions 会构建 universal 包、签名、建 Release，并生成 latest.json，
+# 也就是 tauri.conf.json 里 updater.endpoints 指向的那个文件。
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    # 必须用 macOS runner：录制内核是 Swift 写的，只能在 macOS 上编译
+    runs-on: macos-14
+
+    permissions:
+      contents: write   # 建 Release、上传产物
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      # Swift 录制内核。打成 universal，Intel 和 Apple Silicon 共用一个包
+      - run: bash scripts/build-helper.sh --universal
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 更新包签名。私钥只存在 Secrets 里，客户端用 tauri.conf.json 的公钥验证
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # 这里故意不设 APPLE_SIGNING_IDENTITY：
+          # 「AGRec Dev」那张自签名证书只在开发机的钥匙串里，CI 上不存在，
+          # 设了反而会让构建失败。没设的话 Tauri 用临时签名。
+          # 想让别人下载后不被 Gatekeeper 拦，需要换成 Apple Developer ID 并公证，
+          # 那需要付费开发者账号，见 docs/自动更新.md
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "AGRec ${{ github.ref_name }}"
+          releaseBody: "在下面的 Assets 里下载 .dmg 安装。已安装的旧版本会自动收到更新提示。"
+          releaseDraft: false
+          prerelease: false
+          args: --target universal-apple-darwin

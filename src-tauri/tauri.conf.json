@@ -81,18 +81,17 @@
     "externalBin": [
       "binaries/zhilu-helper"
     ],
-    "createUpdaterArtifacts": false,
+    "createUpdaterArtifacts": true,
     "macOS": {
       "minimumSystemVersion": "13.0",
-      "entitlements": "entitlements.plist",
-      "signingIdentity": "AGRec Dev"
+      "entitlements": "entitlements.plist"
     }
   },
   "plugins": {
     "updater": {
       "pubkey": "REPLACE_WITH_PUBLIC_KEY_FROM_TAURI_SIGNER_GENERATE",
       "endpoints": [
-        "https://github.com/huipengli0708-dot/-/releases/latest/download/latest.json"
+        "https://github.com/huipengli0708-dot/AGRec/releases/latest/download/latest.json"
       ]
     }
   }

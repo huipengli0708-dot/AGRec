@@ -64,9 +64,14 @@ export default function UpdateButton() {
   if (state === "checking") return <span className="update-tag">检查中…</span>;
   if (state === "none") return <span className="update-tag ok">已是最新版本</span>;
   if (state === "error") {
+    // 把原因摆出来，别只给一句「检查失败」。最常见的两种原因——
+    // 更新签名公钥还没配、或者仓库还没发过 Release——用户看到原文才知道
+    // 是软件坏了还是根本没配置过，不然只会一直点重试。
+    const short = error.length > 60 ? error.slice(0, 60) + "…" : error;
     return (
-      <span className="update-tag err" title={error} onClick={doCheck}>
-        检查失败，点击重试
+      <span className="update-tag err" title={error}>
+        检查失败：{short}
+        <button className="update-btn small" onClick={doCheck}>重试</button>
       </span>
     );
   }

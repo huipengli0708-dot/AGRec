@@ -10,7 +10,7 @@
     "tauri": "tauri",
     "helper": "bash scripts/build-helper.sh",
     "app": "node scripts/dev.mjs",
-    "release": "bash scripts/build-helper.sh --universal && npx tauri build",
+    "release": "bash scripts/release.sh",
     "app:once": "bash scripts/build-helper.sh && npx tauri dev"
   },
   "dependencies": {
