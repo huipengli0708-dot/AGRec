@@ -20,9 +20,12 @@ if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ] && [ -f "$KEY_FILE" ]; then
 fi
 
 if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
-  echo "⚠️  没找到更新签名私钥（$KEY_FILE）。"
+  # 变量一律写成 ${VAR} 带花括号。紧跟中文全角括号时如果写成 $VAR，
+  # bash 会把全角字符的字节也当成变量名的一部分（变成 KEY_FILE\xef\xbc\x89），
+  # 配上 set -u 就直接报 unbound variable 中断整个脚本。
+  echo "⚠️  没找到更新签名私钥: ${KEY_FILE}"
   echo "   这次打出来的包不能用于自动更新，只能手动安装。"
-  echo "   要启用自动更新，先跑一次：npx tauri signer generate -w \"$KEY_FILE\""
+  echo "   要启用自动更新，先跑一次: npx tauri signer generate -w ${KEY_FILE}"
   echo ""
 fi
 
