@@ -39,14 +39,26 @@ final class ZoomCompositor: NSObject, AVVideoCompositing {
                                                 .cacheIntermediates: false])
     private let queue = DispatchQueue(label: "zhilu.compositor")
 
-    // 注意：Xcode 16 及以上 SDK 这两个属性的类型是 [String: any Sendable]；
-    // 若你的 Xcode 较旧、编译报「类型不匹配」，把下面两处 [String: any Sendable] 改成 [String: Any] 即可。
+    // AVVideoCompositing 这两个属性的类型在不同 SDK 里不一样：
+    // Xcode 16（Swift 6 编译器）起是 [String: any Sendable]，此前是 [String: Any]。
+    // 写死任何一种，都会在另一种 Xcode 上报「does not conform to protocol」。
+    // 用编译器版本分支，两边都能编——这比把 CI 钉死在某个 Xcode 版本上更靠谱，
+    // 否则别人拿旧 Xcode clone 下来照样编不过。
+    #if compiler(>=6.0)
     var sourcePixelBufferAttributes: [String: any Sendable]? {
         [kCVPixelBufferPixelFormatTypeKey as String: [kCVPixelFormatType_32BGRA]]
     }
     var requiredPixelBufferAttributesForRenderContext: [String: any Sendable] {
         [kCVPixelBufferPixelFormatTypeKey as String: [kCVPixelFormatType_32BGRA]]
     }
+    #else
+    var sourcePixelBufferAttributes: [String: Any]? {
+        [kCVPixelBufferPixelFormatTypeKey as String: [kCVPixelFormatType_32BGRA]]
+    }
+    var requiredPixelBufferAttributesForRenderContext: [String: Any] {
+        [kCVPixelBufferPixelFormatTypeKey as String: [kCVPixelFormatType_32BGRA]]
+    }
+    #endif
 
     func renderContextChanged(_ newRenderContext: AVVideoCompositionRenderContext) {}
 
