@@ -34,6 +34,10 @@ if [[ "${1:-}" == "--universal" ]]; then
   lipo -create "$TMP/helper-arm64" "$TMP/helper-x86_64" -output "$TMP/helper"
   cp "$TMP/helper" "$OUTDIR/zhilu-helper-aarch64-apple-darwin"
   cp "$TMP/helper" "$OUTDIR/zhilu-helper-x86_64-apple-darwin"
+  # 打 --target universal-apple-darwin 时，Tauri 找的 sidecar 名字带的是
+  # universal-apple-darwin 后缀，不是上面两个单架构名。少这一份 CI 会报
+  # 「sidecar not found」。反正是同一个 lipo 出来的胖二进制，多放一份不占事。
+  cp "$TMP/helper" "$OUTDIR/zhilu-helper-universal-apple-darwin"
 else
   HOST_ARCH="$(uname -m)"
   if [[ "$HOST_ARCH" == "arm64" ]]; then
