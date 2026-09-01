@@ -1,6 +1,6 @@
 [package]
 name = "agrec"
-version = "0.2.0"
+version = "0.2.1"
 description = "知录 - 面向知识博主的 macOS 录屏工具"
 authors = ["huipeng"]
 edition = "2021"
