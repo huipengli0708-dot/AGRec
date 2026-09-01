@@ -41,17 +41,40 @@ jobs:
       # Swift 录制内核。打成 universal，Intel 和 Apple Silicon 共用一个包
       - run: bash scripts/build-helper.sh --universal
 
+      # 把本地那张自签名证书「AGRec Dev」导进 CI 临时钥匙串，
+      # 让 CI 打出来的包和本地包用同一个签名身份——
+      # 这样以后每次发新版本，用户之前给过的「屏幕录制」权限不会被系统当成新 App 又重置一遍。
+      # 注意：这仍然是自签名证书，不是 Apple 官方签发的 Developer ID，
+      # 首次安装 Gatekeeper 的「无法验证开发者」提示不会消失，
+      # 要完全去掉那个提示需要付费加入 Apple Developer Program 并做公证，见 docs/自动更新.md
+      - name: 导入签名证书
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/agrec-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          CERT_PATH="$RUNNER_TEMP/agrec-dev.p12"
+
+          echo "$APPLE_CERTIFICATE" | base64 --decode > "$CERT_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
+
+          rm -f "$CERT_PATH"
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 更新包签名。私钥只存在 Secrets 里，客户端用 tauri.conf.json 的公钥验证
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          # 这里故意不设 APPLE_SIGNING_IDENTITY：
-          # 「AGRec Dev」那张自签名证书只在开发机的钥匙串里，CI 上不存在，
-          # 设了反而会让构建失败。没设的话 Tauri 用临时签名。
-          # 想让别人下载后不被 Gatekeeper 拦，需要换成 Apple Developer ID 并公证，
-          # 那需要付费开发者账号，见 docs/自动更新.md
+          # 用上面导入的同一张自签名证书签 App，跟本地 `npm run release` 保持一致身份
+          APPLE_SIGNING_IDENTITY: "AGRec Dev"
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "AGRec ${{ github.ref_name }}"
