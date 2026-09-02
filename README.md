@@ -5,7 +5,9 @@
 # AGRec
 ### 阿光知录
 
-面向知识博主的 macOS 录屏工具 · 跟随讲解自动放大 · 鼠标样式随时换
+**面向知识博主的 macOS 录屏工具 · 跟随讲解自动放大 · 鼠标样式随时换**
+
+[English](README_en.md) · [官网](https://huipengli0708-dot.github.io/AGRec/)
 
 [![Release](https://img.shields.io/github/v/release/huipengli0708-dot/AGRec?style=flat-square&label=version&color=5b4bdb)](https://github.com/huipengli0708-dot/AGRec/releases/latest)
 [![License](https://img.shields.io/badge/license-MIT-5b4bdb?style=flat-square)](LICENSE)
@@ -16,7 +18,7 @@
 
 <br />
 
-<img src="assets/readme/panel-hero.png" width="420" alt="AGRec 录制面板" />
+<img src="assets/readme/hero-montage.png" width="820" alt="AGRec 界面预览" />
 
 </div>
 
@@ -34,6 +36,23 @@
 | **更换鼠标样式** | 录制时用 `showsCursor = false` **不录系统指针**，同时以 120Hz 记录鼠标轨迹与左键状态；导出时按你选的样式在画面上重绘。所以放大之后指针依然是矢量级清晰，而且随时可以换样式重导。 |
 | **1080P / 2K / 4K** | 录制与导出都可独立选择 1080 / 1440 / 2160，编码可选 H.264 或 HEVC，码率可调（4K 默认 80 Mbps）。放大不是滤镜近似——每一帧都按真实裁剪 + 重采样，4K 源放大 2 倍画面依然锐利。 |
 | **适合知识博主** | 麦克风讲解直录、点击水波纹提示、停留自动放大、逐段微调、项目文件可反复重导出。 |
+
+<br />
+
+## 界面一览
+
+<table>
+<tr>
+<td width="33%"><img src="assets/readme/panel.png" alt="录制面板" /><br /><sub align="center">录制面板</sub></td>
+<td width="33%"><img src="assets/readme/settings-zoom.png" alt="放大参数设置" /><br /><sub>放大参数设置</sub></td>
+<td width="33%"><img src="assets/readme/settings-cursor.png" alt="鼠标样式设置" /><br /><sub>鼠标样式设置</sub></td>
+</tr>
+<tr>
+<td width="33%"><img src="assets/readme/editor-export.png" alt="导出设置" /><br /><sub>编辑器 · 导出设置</sub></td>
+<td width="33%"><img src="assets/readme/settings-quality.png" alt="画质与导出设置" /><br /><sub>画质与导出设置</sub></td>
+<td width="33%"><img src="assets/readme/settings-hud.png" alt="悬浮控制条设置" /><br /><sub>悬浮控制条设置</sub></td>
+</tr>
+</table>
 
 <br />
 
