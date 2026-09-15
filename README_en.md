@@ -13,7 +13,7 @@
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-5b4bdb?style=flat-square)](#install)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-5b4bdb?style=flat-square)](https://tauri.app)
 
-**[Download](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [Usage](#usage) · [Build from source](#build-from-source) · [Roadmap](#roadmap)**
+**[Download](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [Usage](#usage) · [Build from source](#build-from-source) · [Roadmap](#roadmap) · [Changelog](CHANGELOG.md)**
 
 <br />
 
@@ -35,6 +35,21 @@ Independently built, inspired by [Cap](https://github.com/CapSoftware/Cap) — n
 | **Any cursor style** | Recording captures with `showsCursor = false` — the system pointer is never recorded — while the real cursor trail and click state are sampled at 120Hz. On export, the cursor is redrawn in whatever style you pick, so it stays crisp even when zoomed in, and you can re-export with a different style anytime. |
 | **1080p / 2K / 4K** | Recording and export resolution (1080 / 1440 / 2160) are chosen independently, codec is H.264 or HEVC, bitrate is adjustable (4K defaults to 80 Mbps). Zoom isn't a filter approximation — every frame is cropped and resampled from the real source, so a 4K recording stays sharp even at 2x zoom. |
 | **Built for creators** | Direct mic narration, click ripples, dwell-to-zoom, per-segment fine-tuning, and project files you can re-export anytime. |
+
+<br />
+
+## How it compares
+
+|  | AGRec | Built-in macOS screenshot | Typical paid recorders |
+| :-- | :-- | :-- | :-- |
+| Price | Free, open source | Free | Usually subscription |
+| Zoom follows narration | ✅ auto by click/dwell, per-segment editable | ❌ none | Some, mostly manual keyframes |
+| Custom cursor | ✅ style / size / color / ripple | ❌ system cursor only | A few |
+| 4K zoom without quality loss | ✅ real crop + resample | — | Varies |
+| UI language | Chinese-first, English available | English/system | Mostly English-only |
+| Re-editable, re-exportable | ✅ master + params kept | ❌ | Varies |
+
+<sub>Feature comparison, not a commercial benchmark — check each product's own docs for current details.</sub>
 
 <br />
 
@@ -165,6 +180,15 @@ AGRec/
 
 <div align="center">
 
-Found a bug or have an idea? Open an [Issue](https://github.com/huipengli0708-dot/AGRec/issues). Released under the [MIT](LICENSE) license.
+### Star History
+
+<a href="https://star-history.com/#huipengli0708-dot/AGRec&Date">
+  <img src="https://api.star-history.com/svg?repos=huipengli0708-dot/AGRec&type=Date" width="600" alt="Star History Chart" />
+</a>
+
+<br />
+<br />
+
+Found a bug or have an idea? Open an [Issue](https://github.com/huipengli0708-dot/AGRec/issues), or check [CONTRIBUTING](CONTRIBUTING.md). Released under the [MIT](LICENSE) license.
 
 </div>

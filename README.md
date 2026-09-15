@@ -14,7 +14,7 @@
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-5b4bdb?style=flat-square)](#下载安装)
 [![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-5b4bdb?style=flat-square)](https://tauri.app)
 
-**[下载](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [使用流程](#使用流程) · [从源码构建](#从源码构建) · [路线图](#路线图)**
+**[下载](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [使用流程](#使用流程) · [从源码构建](#从源码构建) · [路线图](#路线图) · [更新日志](CHANGELOG.md)**
 
 <br />
 
@@ -36,6 +36,21 @@
 | **更换鼠标样式** | 录制时用 `showsCursor = false` **不录系统指针**，同时以 120Hz 记录鼠标轨迹与左键状态；导出时按你选的样式在画面上重绘。所以放大之后指针依然是矢量级清晰，而且随时可以换样式重导。 |
 | **1080P / 2K / 4K** | 录制与导出都可独立选择 1080 / 1440 / 2160，编码可选 H.264 或 HEVC，码率可调（4K 默认 80 Mbps）。放大不是滤镜近似——每一帧都按真实裁剪 + 重采样，4K 源放大 2 倍画面依然锐利。 |
 | **适合知识博主** | 麦克风讲解直录、点击水波纹提示、停留自动放大、逐段微调、项目文件可反复重导出。 |
+
+<br />
+
+## 跟其他工具比
+
+|  | AGRec | 系统自带截屏 | 常见付费录屏工具 |
+| :-- | :-- | :-- | :-- |
+| 价格 | 免费、开源 | 免费 | 通常订阅制 |
+| 跟随讲解自动放大 | ✅ 点击/停留自动触发，逐段可调 | ❌ 无 | 部分支持，多为手动打关键帧 |
+| 鼠标样式自定义 | ✅ 样式/大小/配色/水波纹 | ❌ 只有系统指针 | 少数支持 |
+| 4K 放大不缩水 | ✅ 真实裁剪重采样 | — | 因产品而异 |
+| 界面语言 | 全中文（English 亦可） | 中文 | 多为纯英文 |
+| 项目可回改重导出 | ✅ 母版+参数都保留 | ❌ | 因产品而异 |
+
+<sub>以上为功能对比，非商业评测；具体以各产品官方信息为准。</sub>
 
 <br />
 
@@ -166,6 +181,15 @@ AGRec/
 
 <div align="center">
 
-发现问题或有想法，欢迎提 [Issue](https://github.com/huipengli0708-dot/AGRec/issues)。项目基于 [MIT](LICENSE) 协议开源。
+### Star History
+
+<a href="https://star-history.com/#huipengli0708-dot/AGRec&Date">
+  <img src="https://api.star-history.com/svg?repos=huipengli0708-dot/AGRec&type=Date" width="600" alt="Star History Chart" />
+</a>
+
+<br />
+<br />
+
+发现问题或有想法，欢迎提 [Issue](https://github.com/huipengli0708-dot/AGRec/issues)，或看看[如何参与贡献](CONTRIBUTING.md)。项目基于 [MIT](LICENSE) 协议开源。
 
 </div>

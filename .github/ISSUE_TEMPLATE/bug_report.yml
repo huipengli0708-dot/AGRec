@@ -1,0 +1,31 @@
+name: Bug 反馈
+description: 报告一个使用中遇到的问题
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: AGRec 版本
+      placeholder: 例如 v0.2.1
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS 版本
+      placeholder: 例如 macOS 15.1 (Apple Silicon)
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 复现步骤 + 实际结果，最好带截图或录屏
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望的结果
+    validations:
+      required: false
