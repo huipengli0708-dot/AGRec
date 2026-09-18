@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/app-icon.png" width="96" height="96" alt="AGRec" />
+<img src="assets/readme/hero-banner.jpg" width="860" alt="AGRec — a macOS screen recorder for knowledge creators" />
 
 # AGRec
 
@@ -15,9 +15,6 @@
 
 **[Download](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [Usage](#usage) · [Build from source](#build-from-source) · [Roadmap](#roadmap) · [Changelog](CHANGELOG.md)**
 
-<br />
-
-<img src="assets/readme/hero-montage.png" width="820" alt="AGRec preview" />
 
 </div>
 
@@ -57,14 +54,24 @@ Independently built, inspired by [Cap](https://github.com/CapSoftware/Cap) — n
 
 <table>
 <tr>
-<td width="33%"><img src="assets/readme/panel.png" alt="Recording panel" /><br /><sub>Recording panel</sub></td>
-<td width="33%"><img src="assets/readme/settings-zoom.png" alt="Zoom settings" /><br /><sub>Zoom settings</sub></td>
-<td width="33%"><img src="assets/readme/settings-cursor.png" alt="Cursor settings" /><br /><sub>Cursor settings</sub></td>
+<td width="33.3%"><img src="assets/readme/cards/panel.png" alt="Recording panel" /></td>
+<td width="33.3%"><img src="assets/readme/cards/settings-zoom.png" alt="Zoom settings" /></td>
+<td width="33.3%"><img src="assets/readme/cards/settings-cursor.png" alt="Cursor settings" /></td>
 </tr>
 <tr>
-<td width="33%"><img src="assets/readme/editor-export.png" alt="Export settings" /><br /><sub>Editor · Export</sub></td>
-<td width="33%"><img src="assets/readme/settings-quality.png" alt="Quality settings" /><br /><sub>Quality settings</sub></td>
-<td width="33%"><img src="assets/readme/settings-hud.png" alt="HUD settings" /><br /><sub>HUD style settings</sub></td>
+<td align="center"><sub><b>Recording panel</b><br />scope · quality · audio · auto-zoom</sub></td>
+<td align="center"><sub><b>Zoom settings</b><br />trigger · scale · easing</sub></td>
+<td align="center"><sub><b>Cursor settings</b><br />style · size · color · ripple</sub></td>
+</tr>
+<tr>
+<td><img src="assets/readme/cards/editor-export.png" alt="Editor and export" /></td>
+<td><img src="assets/readme/cards/settings-quality.png" alt="Quality settings" /></td>
+<td><img src="assets/readme/cards/settings-hud.png" alt="HUD settings" /></td>
+</tr>
+<tr>
+<td align="center"><sub><b>Editor · Export</b><br />per-segment tuning · timeline · export</sub></td>
+<td align="center"><sub><b>Quality &amp; export</b><br />resolution · fps · codec · bitrate</sub></td>
+<td align="center"><sub><b>Floating HUD</b><br />control bar style while recording</sub></td>
 </tr>
 </table>
 

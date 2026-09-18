@@ -1,9 +1,8 @@
 <div align="center">
 
-<img src="assets/app-icon.png" width="96" height="96" alt="AGRec" />
+<img src="assets/readme/hero-banner.jpg" width="860" alt="AGRec 阿光知录 — 面向知识博主的 macOS 录屏工具" />
 
-# AGRec
-### 阿光知录
+# AGRec · 阿光知录
 
 **面向知识博主的 macOS 录屏工具 · 跟随讲解自动放大 · 鼠标样式随时换**
 
@@ -16,9 +15,6 @@
 
 **[下载](https://github.com/huipengli0708-dot/AGRec/releases/latest) · [使用流程](#使用流程) · [从源码构建](#从源码构建) · [路线图](#路线图) · [更新日志](CHANGELOG.md)**
 
-<br />
-
-<img src="assets/readme/hero-montage.png" width="820" alt="AGRec 界面预览" />
 
 </div>
 
@@ -58,14 +54,24 @@
 
 <table>
 <tr>
-<td width="33%"><img src="assets/readme/panel.png" alt="录制面板" /><br /><sub align="center">录制面板</sub></td>
-<td width="33%"><img src="assets/readme/settings-zoom.png" alt="放大参数设置" /><br /><sub>放大参数设置</sub></td>
-<td width="33%"><img src="assets/readme/settings-cursor.png" alt="鼠标样式设置" /><br /><sub>鼠标样式设置</sub></td>
+<td width="33.3%"><img src="assets/readme/cards/panel.png" alt="录制面板" /></td>
+<td width="33.3%"><img src="assets/readme/cards/settings-zoom.png" alt="放大参数设置" /></td>
+<td width="33.3%"><img src="assets/readme/cards/settings-cursor.png" alt="鼠标样式设置" /></td>
 </tr>
 <tr>
-<td width="33%"><img src="assets/readme/editor-export.png" alt="导出设置" /><br /><sub>编辑器 · 导出设置</sub></td>
-<td width="33%"><img src="assets/readme/settings-quality.png" alt="画质与导出设置" /><br /><sub>画质与导出设置</sub></td>
-<td width="33%"><img src="assets/readme/settings-hud.png" alt="悬浮控制条设置" /><br /><sub>悬浮控制条设置</sub></td>
+<td align="center"><sub><b>录制面板</b><br />范围 · 画质 · 声音 · 自动放大</sub></td>
+<td align="center"><sub><b>放大参数</b><br />触发方式 · 倍数 · 缓动</sub></td>
+<td align="center"><sub><b>鼠标样式</b><br />样式 · 大小 · 配色 · 水波纹</sub></td>
+</tr>
+<tr>
+<td><img src="assets/readme/cards/editor-export.png" alt="编辑器与导出" /></td>
+<td><img src="assets/readme/cards/settings-quality.png" alt="画质与导出设置" /></td>
+<td><img src="assets/readme/cards/settings-hud.png" alt="悬浮控制条设置" /></td>
+</tr>
+<tr>
+<td align="center"><sub><b>编辑器 · 导出</b><br />片段微调 · 时间轴 · 导出参数</sub></td>
+<td align="center"><sub><b>画质与导出</b><br />分辨率 · 帧率 · 编码 · 码率</sub></td>
+<td align="center"><sub><b>悬浮控制条</b><br />录制时的控制条样式</sub></td>
 </tr>
 </table>
 
