@@ -1,10 +1,12 @@
 <div align="center">
 
-<img src="assets/readme/hero-banner.jpg" width="860" alt="AGRec — a macOS screen recorder for knowledge creators" />
+<img src="assets/readme/hero-banner.jpg" width="860" alt="AGRec — a macOS screen recorder" />
 
 # AGRec
 
-**A macOS screen recorder built for knowledge creators · Zoom follows your talk · Any cursor you like**
+**A macOS screen recorder for creators, streamers, internal training, SaaS demos and customer support**
+
+**Lossless 4K · Zoom that follows your narration · Any cursor style you like**
 
 [中文](README.md) · [Website](https://huipengli0708-dot.github.io/AGRec/)
 
@@ -20,7 +22,7 @@
 
 <br />
 
-Independently built, inspired by [Cap](https://github.com/CapSoftware/Cap) — not affiliated with the official Cap project. AGRec focuses on three things and does them well: **zoom that follows what you're explaining, no manual editing needed**, **a cursor you can swap for any style you like**, and **1080p to 4K export that never loses detail**. Designed around how knowledge creators actually record.
+AGRec focuses on three things and does them well: **smooth zoom that puts the important part front and center, with no second pass in an editor**, **five built-in cursor styles you can swap freely**, and **1080p to 4K export that never loses detail**.
 
 <br />
 
@@ -31,7 +33,7 @@ Independently built, inspired by [Cap](https://github.com/CapSoftware/Cap) — n
 | **Zoom that follows your mouse** | After recording, AGRec analyzes the cursor trail automatically: a **left click** or the cursor **resting in a small area** both trigger a zoom. Easing defaults to quad-out; scale, ease-in/out duration, hold time and trigger sensitivity are all tunable, and every segment can be edited, added, or removed by hand in the editor. |
 | **Any cursor style** | Recording captures with `showsCursor = false` — the system pointer is never recorded — while the real cursor trail and click state are sampled at 120Hz. On export, the cursor is redrawn in whatever style you pick, so it stays crisp even when zoomed in, and you can re-export with a different style anytime. |
 | **1080p / 2K / 4K** | Recording and export resolution (1080 / 1440 / 2160) are chosen independently, codec is H.264 or HEVC, bitrate is adjustable (4K defaults to 80 Mbps). Zoom isn't a filter approximation — every frame is cropped and resampled from the real source, so a 4K recording stays sharp even at 2x zoom. |
-| **Built for creators** | Direct mic narration, click ripples, dwell-to-zoom, per-segment fine-tuning, and project files you can re-export anytime. |
+| **Built for polished tutorials** | Direct mic narration, click ripples, dwell-to-zoom, per-segment fine-tuning, and project files you can re-export anytime. |
 
 <br />
 
