@@ -27,7 +27,7 @@
 <br />
 
 <div align="center">
-<video src="assets/readme/agrec-demo.mp4" width="860" controls muted playsinline poster="assets/readme/hero-banner.jpg"></video>
+<video src="https://github.com/user-attachments/assets/507ba54f-6d7d-444e-a943-d2aca8f456a4" width="860" controls muted playsinline poster="assets/readme/hero-banner.jpg"></video>
 <br /><sub>实录演示 · 未加速未剪辑</sub>
 </div>
 
