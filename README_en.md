@@ -26,6 +26,13 @@ AGRec focuses on three things and does them well: **smooth zoom that puts the im
 
 <br />
 
+<div align="center">
+<video src="assets/readme/agrec-demo.mp4" width="860" controls muted playsinline poster="assets/readme/hero-banner.jpg"></video>
+<br /><sub>Real recording · not sped up, not re-cut</sub>
+</div>
+
+<br />
+
 ## How it works
 
 |  |  |

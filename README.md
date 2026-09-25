@@ -26,6 +26,13 @@
 
 <br />
 
+<div align="center">
+<video src="assets/readme/agrec-demo.mp4" width="860" controls muted playsinline poster="assets/readme/hero-banner.jpg"></video>
+<br /><sub>实录演示 · 未加速未剪辑</sub>
+</div>
+
+<br />
+
 ## 它是怎么做到的
 
 |  |  |
